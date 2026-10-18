@@ -29,7 +29,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="w-20 h-20 rounded-2xl bg-[#ffffff] p-1.5 shadow-lg border border-white/20 shrink-0 flex items-center justify-center overflow-hidden">
           <img
             src="agenerativeslicelogo.jpg"
-            alt="A Generative Slice Logo"
+            alt="SliceEVENT Logo"
             className="w-full h-full object-contain rounded-xl"
             onError={(e) => {
               (e.target as HTMLElement).style.display = 'none';
@@ -40,7 +40,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="z-10">
           <div className="flex items-center justify-center sm:justify-start gap-2">
             <h1 className="text-2xl font-extrabold tracking-tight">
-              A Generative Slice
+              SliceEVENT
             </h1>
             <Sparkles className="w-4 h-4 text-[#ffb347]" />
           </div>

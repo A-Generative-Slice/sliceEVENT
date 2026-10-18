@@ -17,11 +17,11 @@ interface SupportViewProps {
 export const SupportView: React.FC<SupportViewProps> = ({ onBack }) => {
   const whatsappNumber = '917812891494';
   const whatsappMsg = encodeURIComponent(
-    'Hello A Generative Slice Team, I need support / custom updates for A Generative Slice.'
+    'Hello A Generative Slice Team, I need support / custom updates for SliceEVENT.'
   );
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`;
   const phoneUrl = `tel:+${whatsappNumber}`;
-  const mailtoUrl = `mailto:agenerativeslice@gmail.com?subject=Support%20Inquiry%20-%20The%20Velvet%20Trunk`;
+  const mailtoUrl = `mailto:agenerativeslice@gmail.com?subject=Support%20Inquiry%20-%20SliceEVENT`;
 
   return (
     <div className="flex flex-col gap-6 pb-16 w-full max-w-3xl mx-auto animate-fadeIn">
@@ -44,7 +44,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ onBack }) => {
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#ffffff] p-2 shadow-lg border border-white/20 shrink-0 flex items-center justify-center overflow-hidden">
           <img
             src="agenerativeslicelogo.jpg"
-            alt="A Generative Slice Logo"
+            alt="SliceEVENT Logo"
             className="w-full h-full object-contain rounded-xl"
             onError={(e) => {
               (e.target as HTMLElement).style.display = 'none';
@@ -55,7 +55,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ onBack }) => {
         <div className="space-y-1 z-10">
           <div className="flex items-center justify-center sm:justify-start gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              A Generative Slice
+              SliceEVENT
             </h1>
             <Sparkles className="w-5 h-5 text-[#ffb347]" />
           </div>

@@ -112,7 +112,7 @@ export const formatStallAvailabilityText = (
     return stalls.join(', ');
   };
 
-  return `✨ A GENERATIVE SLICE - EXHIBITION STALL AVAILABILITY UPDATE ✨
+  return `✨ SLICEEVENT - EXHIBITION STALL AVAILABILITY UPDATE ✨
 
 📌 Event: ${event.name}
 📍 Location: ${event.location}
@@ -141,7 +141,7 @@ ${sBooked.length > 0 ? `\n🔴 ALREADY BOOKED:\n${formatList(sBooked)}` : ''}
 
 ----------------------------------------
 🗺️ Match these stall numbers directly with the attached Layout Blueprint Floor Plan!
-📞 For Stall Bookings & Reservations, contact Generative Slice Event Team!`;
+📞 For Stall Bookings & Reservations, contact the SliceEVENT Team!`;
 };
 
 // -----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ export const generateVendorBlueprintPDF = async (
 
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'normal');
-  doc.text('A GENERATIVE SLICE  —  STALL AVAILABILITY REPORT (VENDOR COPY)', 14, 21);
+  doc.text('SLICEEVENT  —  STALL AVAILABILITY REPORT (VENDOR COPY)', 14, 21);
   doc.text(
     `Generated: ${new Date().toLocaleDateString('en-IN', {
       day: 'numeric', month: 'short', year: 'numeric',
@@ -423,7 +423,7 @@ export const generateVendorBlueprintPDF = async (
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'italic');
   doc.text(
-    `A Generative Slice  |  Vendor Stall Availability Report  |  Page ${doc.getNumberOfPages()}`,
+    `SliceEVENT  |  Vendor Stall Availability Report  |  Page ${doc.getNumberOfPages()}`,
     14, y
   );
 
@@ -476,7 +476,7 @@ export const generateOwnerReportPDF = async (
 
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'normal');
-  doc.text('A GENERATIVE SLICE - EVENT EXECUTIVE & FINANCIAL LEDGER REPORT', 14, 21);
+  doc.text('SLICEEVENT - EVENT EXECUTIVE & FINANCIAL LEDGER REPORT', 14, 21);
   doc.text(
     `Date: ${new Date().toLocaleDateString('en-IN', {
       day: 'numeric',
@@ -730,7 +730,7 @@ export const generateOwnerReportPDF = async (
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'italic');
   doc.text(
-    `A Generative Slice  |  Event Executive & Financial Report  |  Page ${doc.getNumberOfPages()}`,
+    `SliceEVENT  |  Event Executive & Financial Report  |  Page ${doc.getNumberOfPages()}`,
     14,
     y
   );

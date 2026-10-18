@@ -1,4 +1,4 @@
-# sliceEVENT — Exhibition & Stall Management Platform 🎪✨
+# SliceEVENT — Exhibition & Stall Management Platform 🎪✨
 
 <div align="center">
 
@@ -9,7 +9,7 @@
 [![jsPDF](https://img.shields.io/badge/PDF_Engine-jsPDF-red?style=for-the-badge)](https://github.com/parallax/jsPDF)
 [![Motion](https://img.shields.io/badge/Animations-Motion-FF4081?style=for-the-badge)](https://motion.dev/)
 
-**Comprehensive Stall Reservation, Vendor Onboarding & Exhibition Management Platform by A Generative Slice.**
+**Comprehensive Stall Reservation, Vendor Onboarding & Exhibition Management Platform by SliceEVENT.**
 
 </div>
 
@@ -17,7 +17,7 @@
 
 ## 📖 Overview
 
-**sliceEVENT** is an all-in-one digital command center built specifically for lifestyle exhibitions, pop-ups, flea markets, and trade shows. Engineered by **A Generative Slice**, this platform digitizes the entire exhibition operations pipeline.
+**SliceEVENT** is an all-in-one digital command center built specifically for lifestyle exhibitions, pop-ups, flea markets, and trade shows. Engineered by **A Generative Slice**, this platform digitizes the entire exhibition operations pipeline.
 
 Event organizers can schedule city exhibitions, define dynamic stall categories with custom capacities, process vendor registrations, issue instant branded PDF invoices & availability reports, broadcast real-time availability on WhatsApp, and synchronize reservations with cloud **Supabase** databases or local device storage.
 

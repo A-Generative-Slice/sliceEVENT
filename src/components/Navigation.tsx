@@ -31,7 +31,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             <div className="w-11 h-11 rounded-2xl bg-[#ffffff] border border-[#ffe0cc] p-1 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform overflow-hidden">
               <img
                 src="agenerativeslicelogo.jpg"
-                alt="A Generative Slice Logo"
+                alt="SliceEVENT Logo"
                 className="w-full h-full object-contain rounded-xl"
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = 'none';
@@ -41,7 +41,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-extrabold text-xl tracking-tight text-[#C2500A]">
-                  A Generative Slice
+                  SliceEVENT
                 </span>
                 <Sparkles className="w-4 h-4 text-[#E8621A]" />
               </div>

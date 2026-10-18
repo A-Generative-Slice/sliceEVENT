@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-lg tracking-tight text-[#C2500A]">
-                A Generative Slice
+                SliceEVENT
               </span>
               <Sparkles className="w-3.5 h-3.5 text-[#E8621A]" />
             </div>

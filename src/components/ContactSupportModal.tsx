@@ -41,24 +41,24 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
 
   const whatsappNumber = '917812891494';
   const whatsappMsg = encodeURIComponent(
-    'Hello A Generative Slice Team, I need support/assistance with A Generative Slice application.'
+    'Hello A Generative Slice Team, I need support/assistance with SliceEVENT application.'
   );
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`;
 
   const developerEmail = 'agenerativeslice@gmail.com';
-  const mailtoUrl = `mailto:${developerEmail}?subject=Support%20Inquiry%20-%20The%20Velvet%20Trunk`;
+  const mailtoUrl = `mailto:${developerEmail}?subject=Support%20Inquiry%20-%20SliceEVENT`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-md animate-fadeIn">
       <div className="bg-[#ffffff] rounded-3xl border border-[#ffe0cc] shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Header with A Generative Slice Company Logo */}
+        {/* Header with SliceEVENT Logo */}
         <div className="bg-gradient-to-r from-[#C2500A] via-[#a8400a] to-[#E8621A] p-5 text-white flex items-center justify-between relative overflow-hidden">
           <div className="flex items-center gap-3.5 z-10">
             {/* Company Logo Badge */}
             <div className="w-12 h-12 rounded-2xl bg-white p-1 shadow-md shrink-0 border border-white/30 overflow-hidden flex items-center justify-center">
               <img
                 src="agenerativeslicelogo.jpg"
-                alt="A Generative Slice Logo"
+                alt="SliceEVENT Logo"
                 className="w-full h-full object-contain rounded-xl"
                 onError={(e) => {
                   // Fallback if image fails to load
@@ -69,7 +69,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <h2 className="font-black text-base sm:text-lg tracking-tight text-white">
-                  A Generative Slice
+                  SliceEVENT
                 </h2>
                 <span className="px-2 py-0.5 rounded-full bg-[#ffb347] text-[#C2500A] text-[9px] font-black uppercase">
                   DEVELOPER TEAM
@@ -105,7 +105,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               </h3>
             </div>
             <p className="text-xs text-[#4a3b30] leading-relaxed font-medium">
-              At <strong className="text-[#C2500A]">A Generative Slice</strong>, we deeply respect and admire the vision, effort, and passion exhibition organizers bring to life. Crafting unforgettable expos, managing stall layouts, and empowering local artisans is a massive feat. We built <strong>A Generative Slice</strong> to streamline your operations, and we are dedicated to supporting your success every step of the way!
+              At <strong className="text-[#C2500A]">SliceEVENT</strong>, we deeply respect and admire the vision, effort, and passion exhibition organizers bring to life. Crafting unforgettable expos, managing stall layouts, and empowering local artisans is a massive feat. We built <strong>SliceEVENT</strong> to streamline your operations, and we are dedicated to supporting your success every step of the way!
             </p>
           </div>
 

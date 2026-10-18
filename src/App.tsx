@@ -347,7 +347,7 @@ export default function App() {
   // Export Data JSON
   const handleExportData = () => {
     const dataObj = {
-      app: 'A Generative Slice',
+      app: 'SliceEVENT',
       version: '2.0',
       exportedAt: new Date().toISOString(),
       events,
@@ -360,7 +360,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Velvet_Trunk_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `SliceEVENT_Backup_${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
