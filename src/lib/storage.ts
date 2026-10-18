@@ -6,7 +6,7 @@ const BOOKINGS_STORAGE_KEY = 'velvet_trunk_bookings_v3';
 const SUPABASE_CONFIG_KEY = 'velvet_trunk_supabase_cfg';
 
 // Default layout JPG image (Base64 or high quality luxury stall layout SVG/data URI)
-export const DEFAULT_LAYOUT_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" fill="none"><rect width="800" height="600" fill="%23FFF7FA"/><rect x="20" y="20" width="760" height="560" rx="16" fill="%23F4ECEF" stroke="%2381737C" stroke-width="2" stroke-dasharray="8 8"/><text x="400" y="60" text-anchor="middle" fill="%23491546" font-family="sans-serif" font-size="22" font-weight="bold">THE VELVET TRUNK - EXHIBITION FLOOR PLAN</text><rect x="60" y="100" width="680" height="180" rx="12" fill="%23632C5E" fill-opacity="0.08" stroke="%23491546" stroke-width="1.5"/><text x="400" y="125" text-anchor="middle" fill="%23491546" font-family="sans-serif" font-size="16" font-weight="bold">F-SERIES ZONE (F-01 to F-100) — PREMIUM FRONT PAVILION</text><g fill="%23491546" fill-opacity="0.15" stroke="%23491546" stroke-width="1"><rect x="80" y="140" width="55" height="40" rx="4"/><text x="107" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-01</text><rect x="145" y="140" width="55" height="40" rx="4"/><text x="172" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-02</text><rect x="210" y="140" width="55" height="40" rx="4"/><text x="237" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-03</text><rect x="275" y="140" width="55" height="40" rx="4"/><text x="302" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-04</text><rect x="340" y="140" width="55" height="40" rx="4"/><text x="367" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-05</text></g><rect x="60" y="320" width="680" height="150" rx="12" fill="%23904277" fill-opacity="0.08" stroke="%23904277" stroke-width="1.5"/><text x="400" y="345" text-anchor="middle" fill="%23904277" font-family="sans-serif" font-size="16" font-weight="bold">S-SERIES ZONE (S-01 to S-20) — SELECT VIP LOUNGE</text></svg>`;
+export const DEFAULT_LAYOUT_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" fill="none"><rect width="800" height="600" fill="%23FFF7FA"/><rect x="20" y="20" width="760" height="560" rx="16" fill="%23F4ECEF" stroke="%2381737C" stroke-width="2" stroke-dasharray="8 8"/><text x="400" y="60" text-anchor="middle" fill="%23491546" font-family="sans-serif" font-size="22" font-weight="bold">A GENERATIVE SLICE - EXHIBITION FLOOR PLAN</text><rect x="60" y="100" width="680" height="180" rx="12" fill="%23632C5E" fill-opacity="0.08" stroke="%23491546" stroke-width="1.5"/><text x="400" y="125" text-anchor="middle" fill="%23491546" font-family="sans-serif" font-size="16" font-weight="bold">F-SERIES ZONE (F-01 to F-100) — PREMIUM FRONT PAVILION</text><g fill="%23491546" fill-opacity="0.15" stroke="%23491546" stroke-width="1"><rect x="80" y="140" width="55" height="40" rx="4"/><text x="107" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-01</text><rect x="145" y="140" width="55" height="40" rx="4"/><text x="172" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-02</text><rect x="210" y="140" width="55" height="40" rx="4"/><text x="237" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-03</text><rect x="275" y="140" width="55" height="40" rx="4"/><text x="302" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-04</text><rect x="340" y="140" width="55" height="40" rx="4"/><text x="367" y="165" text-anchor="middle" fill="%23491546" font-size="11" font-weight="bold">F-05</text></g><rect x="60" y="320" width="680" height="150" rx="12" fill="%23904277" fill-opacity="0.08" stroke="%23904277" stroke-width="1.5"/><text x="400" y="345" text-anchor="middle" fill="%23904277" font-family="sans-serif" font-size="16" font-weight="bold">S-SERIES ZONE (S-01 to S-20) — SELECT VIP LOUNGE</text></svg>`;
 
 export const SAMPLE_EVENTS: EventItem[] = [];
 
@@ -158,11 +158,42 @@ export function calculateEventDashboardStats(
 
   const fBookings = eventBookings.filter((b) => b.series === 'F');
   const sBookings = eventBookings.filter((b) => b.series === 'S');
-
   const fBooked = fBookings.length;
   const sBooked = sBookings.length;
 
-  const totalStallsLimit = event.fSeriesLimit + event.sSeriesLimit;
+  // --- Dynamic series stats (new model) ---
+  const seriesStats: import('../types').SeriesStat[] = [];
+
+  if (event.stallSeriesConfigs && event.stallSeriesConfigs.length > 0) {
+    // Dynamic categories: count bookings where stallCategory matches the config name
+    event.stallSeriesConfigs.forEach((cfg) => {
+      const catBooked = eventBookings.filter(
+        (b) => b.stallCategory === cfg.name
+      ).length;
+      seriesStats.push({
+        name: cfg.name,
+        limit: cfg.limit,
+        booked: catBooked,
+        available: Math.max(0, cfg.limit - catBooked),
+      });
+    });
+  } else {
+    // Legacy F / S model
+    seriesStats.push({
+      name: 'F Series',
+      limit: event.fSeriesLimit,
+      booked: fBooked,
+      available: Math.max(0, event.fSeriesLimit - fBooked),
+    });
+    seriesStats.push({
+      name: 'S Series',
+      limit: event.sSeriesLimit,
+      booked: sBooked,
+      available: Math.max(0, event.sSeriesLimit - sBooked),
+    });
+  }
+
+  const totalStallsLimit = seriesStats.reduce((sum, s) => sum + s.limit, 0);
   const stallsBooked = eventBookings.length;
   const stallsAvailable = Math.max(0, totalStallsLimit - stallsBooked);
 
@@ -195,14 +226,16 @@ export function calculateEventDashboardStats(
     fLimit: event.fSeriesLimit,
     sBooked,
     sLimit: event.sSeriesLimit,
+    seriesStats,
     paidCount,
     partialCount,
     unpaidCount,
+
   };
 }
 
 // SQL Generator helper for Supabase table creation
-export const SUPABASE_SETUP_SQL = `-- Run this in your Supabase SQL Editor to create tables for The Velvet Trunk
+export const SUPABASE_SETUP_SQL = `-- Run this in your Supabase SQL Editor to create tables for A Generative Slice
 
 -- 1. Create Events Table
 create table if not exists public.events (

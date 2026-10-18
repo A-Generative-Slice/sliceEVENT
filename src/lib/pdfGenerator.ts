@@ -112,7 +112,7 @@ export const formatStallAvailabilityText = (
     return stalls.join(', ');
   };
 
-  return `✨ THE VELVET TRUNK - EXHIBITION STALL AVAILABILITY UPDATE ✨
+  return `✨ A GENERATIVE SLICE - EXHIBITION STALL AVAILABILITY UPDATE ✨
 
 📌 Event: ${event.name}
 📍 Location: ${event.location}
@@ -141,7 +141,7 @@ ${sBooked.length > 0 ? `\n🔴 ALREADY BOOKED:\n${formatList(sBooked)}` : ''}
 
 ----------------------------------------
 🗺️ Match these stall numbers directly with the attached Layout Blueprint Floor Plan!
-📞 For Stall Bookings & Reservations, contact Velvet Trunk Event Team!`;
+📞 For Stall Bookings & Reservations, contact Generative Slice Event Team!`;
 };
 
 // -----------------------------------------------------------------------------
@@ -161,36 +161,44 @@ export const generateVendorBlueprintPDF = async (
   const eventBookings = bookings.filter((b) => b.eventId === event.id);
 
   // Brand Colors
-  const primaryColor = [73, 21, 70]; // #491546
-  const secondaryColor = [144, 66, 119]; // #904277
-  const darkTextColor = [30, 26, 29]; // #1e1a1d
-  const lightBgColor = [250, 241, 245]; // #faf1f5
+  const primaryColor = [194, 80, 10]; // #C2500A
+  const darkTextColor = [28, 22, 18]; // #1c1612
+  const lightBgColor = [255, 245, 238]; // #fff5ee
 
-  // Header Banner
+  // ── Header Banner ──────────────────────────────────────────────────────────
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, 210, 32, 'F');
+  doc.rect(0, 0, 210, 36, 'F');
+
+  // Try to embed brand logo in top-right of header
+  try {
+    const logoInfo = await loadImageDataUrl('agenerativeslicelogo.jpg');
+    // Draw a white rounded badge behind logo
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(178, 4, 26, 26, 3, 3, 'F');
+    doc.addImage(logoInfo.dataUrl, 'JPEG', 180, 6, 22, 22);
+  } catch (_) {
+    // Logo unavailable — skip silently
+  }
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(15);
-  doc.text(event.name.toUpperCase(), 14, 14);
+  doc.setFontSize(14);
+  doc.text(event.name.toUpperCase(), 14, 13);
 
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setFont('helvetica', 'normal');
-  doc.text('THE VELVET TRUNK - EXHIBITION FLOOR PLAN & STALL AVAILABILITY (VENDOR REPORT)', 14, 22);
+  doc.text('A GENERATIVE SLICE  —  STALL AVAILABILITY REPORT (VENDOR COPY)', 14, 21);
   doc.text(
-    `Date: ${new Date().toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
+    `Generated: ${new Date().toLocaleDateString('en-IN', {
+      day: 'numeric', month: 'short', year: 'numeric',
     })}`,
-    145,
-    22
+    14,
+    28
   );
 
-  let y = 38;
+  let y = 42;
 
-  // Event Meta Info Box
+  // ── Event Meta Info ─────────────────────────────────────────────────────────
   doc.setFillColor(lightBgColor[0], lightBgColor[1], lightBgColor[2]);
   doc.roundedRect(14, y, 182, 20, 2, 2, 'F');
 
@@ -204,69 +212,120 @@ export const generateVendorBlueprintPDF = async (
   doc.setFont('helvetica', 'normal');
   doc.text(event.location, 48, y + 6.5);
   doc.text(
-    `${formatDateRange(event.startDate, event.endDate)}${
-      event.timing ? ` (${event.timing})` : ''
-    }`,
+    `${formatDateRange(event.startDate, event.endDate)}${event.timing ? ` (${event.timing})` : ''}`,
     48,
     y + 14
   );
 
   y += 26;
 
-  // Stall Occupancy Overview Cards (No monetary values)
+  // ── Overall Occupancy Summary Cards ─────────────────────────────────────────
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text('EXHIBITION STALL AVAILABILITY SUMMARY', 14, y);
 
   y += 4;
 
-  const cardWidth = 58;
-  const cardGap = 4;
-  const cards = [
-    { title: 'Total Capacity', val: `${stats.totalStalls} Stalls` },
-    { title: 'Occupied / Booked', val: `${stats.stallsBooked} Stalls` },
-    { title: 'VACANT AVAILABLE NOW', val: `${stats.stallsAvailable} STALLS` },
+  const summaryCards = [
+    { title: 'Total Capacity', val: `${stats.totalStalls} Stalls`, highlight: false },
+    { title: 'Occupied / Booked', val: `${stats.stallsBooked} Stalls`, highlight: false },
+    { title: 'VACANT NOW', val: `${stats.stallsAvailable} STALLS`, highlight: true },
   ];
+  const cardW = 58;
+  const cardGap = 4;
 
-  cards.forEach((card, idx) => {
-    const x = 14 + idx * (cardWidth + cardGap);
-    doc.setFillColor(idx === 2 ? 232 : 245, idx === 2 ? 245 : 238, idx === 2 ? 238 : 242);
-    doc.roundedRect(x, y, cardWidth, 16, 2, 2, 'F');
+  summaryCards.forEach((card, idx) => {
+    const x = 14 + idx * (cardW + cardGap);
+    if (card.highlight) {
+      doc.setFillColor(220, 252, 231); // light green
+    } else {
+      doc.setFillColor(255, 245, 238);
+    }
+    doc.roundedRect(x, y, cardW, 16, 2, 2, 'F');
 
-    doc.setFontSize(7);
-    doc.setTextColor(idx === 2 ? 16 : 120, idx === 2 ? 122 : 100, idx === 2 ? 70 : 115);
+    doc.setFontSize(6.5);
+    doc.setTextColor(card.highlight ? 22 : 120, card.highlight ? 101 : 100, card.highlight ? 52 : 115);
     doc.setFont('helvetica', 'bold');
     doc.text(card.title.toUpperCase(), x + 4, y + 5);
 
-    doc.setFontSize(9);
-    doc.setTextColor(idx === 2 ? 16 : primaryColor[0], idx === 2 ? 122 : primaryColor[1], idx === 2 ? 70 : primaryColor[2]);
+    doc.setFontSize(8.5);
+    doc.setTextColor(card.highlight ? 22 : primaryColor[0], card.highlight ? 101 : primaryColor[1], card.highlight ? 52 : primaryColor[2]);
     doc.text(card.val, x + 4, y + 12);
   });
 
   y += 22;
 
-  // Vendor Stall Allocations Table Header (Zero financial data)
+  // ── Per-Category Stall Breakdown ─────────────────────────────────────────────
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(9);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('STALL CATEGORY BREAKDOWN', 14, y);
+
+  y += 4;
+
+  // Category table header
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(14, y, 182, 7, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CATEGORY / ZONE', 18, y + 4.8);
+  doc.text('TOTAL STALLS', 95, y + 4.8);
+  doc.text('BOOKED', 130, y + 4.8);
+  doc.text('AVAILABLE', 162, y + 4.8);
+
+  y += 7;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+
+  stats.seriesStats.forEach((s, idx) => {
+    if (idx % 2 === 0) {
+      doc.setFillColor(255, 248, 240);
+      doc.rect(14, y, 182, 7, 'F');
+    }
+    doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(s.name, 18, y + 5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(s.limit), 95, y + 5);
+
+    doc.setTextColor(s.booked > 0 ? 180 : 120, s.booked > 0 ? 20 : 120, s.booked > 0 ? 20 : 120);
+    doc.text(String(s.booked), 130, y + 5);
+
+    doc.setTextColor(s.available > 0 ? 22 : 180, s.available > 0 ? 101 : 20, s.available > 0 ? 52 : 20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(String(s.available), 162, y + 5);
+
+    y += 7;
+  });
+
+  y += 4;
+
+  // ── Vendor Stall Allocations Table ───────────────────────────────────────────
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text(`CURRENT STALL ALLOCATIONS (${eventBookings.length} BOOKED)`, 14, y);
 
   y += 4;
 
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(14, y, 182, 7.5, 'F');
+  const drawVendorTableHeader = () => {
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(14, y, 182, 7.5, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Stall No', 18, y + 5);
+    doc.text('Exhibitor / Stall Name', 45, y + 5);
+    doc.text('Category', 125, y + 5);
+    doc.text('Status', 170, y + 5);
+    y += 7.5;
+  };
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'bold');
-
-  doc.text('Stall No', 18, y + 5);
-  doc.text('Exhibitor / Stall Name', 45, y + 5);
-  doc.text('Category', 125, y + 5);
-  doc.text('Status', 170, y + 5);
-
-  y += 7.5;
+  drawVendorTableHeader();
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
@@ -280,20 +339,11 @@ export const generateVendorBlueprintPDF = async (
       if (y > 270) {
         doc.addPage();
         y = 15;
-        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        doc.rect(14, y, 182, 7.5, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Stall No', 18, y + 5);
-        doc.text('Exhibitor / Stall Name', 45, y + 5);
-        doc.text('Category', 125, y + 5);
-        doc.text('Status', 170, y + 5);
-        y += 7.5;
-        doc.setFont('helvetica', 'normal');
+        drawVendorTableHeader();
       }
 
       if (index % 2 === 0) {
-        doc.setFillColor(252, 247, 250);
+        doc.setFillColor(255, 248, 240);
         doc.rect(14, y, 182, 6.5, 'F');
       }
 
@@ -306,7 +356,8 @@ export const generateVendorBlueprintPDF = async (
       const truncatedName = displayName.length > 38 ? displayName.substring(0, 36) + '..' : displayName;
       doc.text(truncatedName, 45, y + 4.5);
 
-      doc.text(b.stallCategory || 'General', 125, y + 4.5);
+      const catText = String(b.stallCategory || 'General');
+      doc.text(catText.length > 18 ? catText.substring(0, 17) + '.' : catText, 125, y + 4.5);
 
       doc.setTextColor(180, 20, 20);
       doc.setFont('helvetica', 'bold');
@@ -316,13 +367,12 @@ export const generateVendorBlueprintPDF = async (
     });
   }
 
-  // Page 2: Layout Blueprint Floor Plan Image (Aspect Ratio strictly preserved!)
+  // ── Page 2: Layout Blueprint Floor Plan ──────────────────────────────────────
   if (event.layoutImageUrl) {
     try {
       const imgInfo = await loadImageDataUrl(event.layoutImageUrl);
       doc.addPage();
 
-      // Blueprint Page Header Banner
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.rect(0, 0, 210, 24, 'F');
 
@@ -337,68 +387,50 @@ export const generateVendorBlueprintPDF = async (
 
       let pdfPageY = 28;
 
-      // Status Badge Banner
       doc.setFillColor(lightBgColor[0], lightBgColor[1], lightBgColor[2]);
       doc.roundedRect(14, pdfPageY, 182, 12, 2, 2, 'F');
-
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(8.5);
       doc.text(
-        `Total Stalls: ${stats.totalStalls}  |  Booked: ${stats.stallsBooked}  |  VACANT AVAILABLE NOW: ${stats.stallsAvailable} STALLS`,
+        `Total Stalls: ${stats.totalStalls}  |  Booked: ${stats.stallsBooked}  |  VACANT NOW: ${stats.stallsAvailable} STALLS`,
         18,
         pdfPageY + 7.5
       );
-
       pdfPageY += 16;
 
-      // Calculate perfect aspect ratio to fit inside printable box (182mm wide x 230mm high)
       const maxBoxW = 182;
       const maxBoxH = 230;
       const imgAspect = imgInfo.width / imgInfo.height;
-
       let renderW = maxBoxW;
       let renderH = maxBoxW / imgAspect;
-
-      if (renderH > maxBoxH) {
-        renderH = maxBoxH;
-        renderW = maxBoxH * imgAspect;
-      }
-
-      // Center horizontally in 182mm box
+      if (renderH > maxBoxH) { renderH = maxBoxH; renderW = maxBoxH * imgAspect; }
       const renderX = 14 + (maxBoxW - renderW) / 2;
       const renderY = pdfPageY + (maxBoxH - renderH) / 2;
-
       doc.addImage(imgInfo.dataUrl, 'JPEG', renderX, renderY, renderW, renderH);
     } catch (err) {
       console.warn('Could not embed floor plan image in Vendor PDF:', err);
     }
   }
 
-  // Footer divider line
+  // ── Footer ───────────────────────────────────────────────────────────────────
   y += 4;
-  if (y > 275) {
-    doc.addPage();
-    y = 15;
-  }
-
-  doc.setDrawColor(210, 194, 204);
+  if (y > 275) { doc.addPage(); y = 15; }
+  doc.setDrawColor(245, 201, 168);
   doc.line(14, y, 196, y);
-
   y += 5;
   doc.setTextColor(120, 110, 118);
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'italic');
   doc.text(
-    `The Velvet Trunk Event Management  |  Vendor Blueprint & Availability Report  |  Page ${doc.getNumberOfPages()}`,
-    14,
-    y
+    `A Generative Slice  |  Vendor Stall Availability Report  |  Page ${doc.getNumberOfPages()}`,
+    14, y
   );
 
-  // Save File
   const filename = `${event.name.replace(/[^a-zA-Z0-9]/g, '_')}_Vendor_Blueprint.pdf`;
   doc.save(filename);
 };
+
 
 // -----------------------------------------------------------------------------
 // PDF EXPORT 2: FULL OWNER EXECUTIVE & FINANCIAL REPORT PDF (FOR OWNER / MANAGEMENT)
@@ -417,34 +449,45 @@ export const generateOwnerReportPDF = async (
   const eventBookings = bookings.filter((b) => b.eventId === event.id);
 
   // Brand Colors
-  const primaryColor = [73, 21, 70]; // #491546
-  const secondaryColor = [144, 66, 119]; // #904277
-  const darkTextColor = [30, 26, 29]; // #1e1a1d
-  const lightBgColor = [250, 241, 245]; // #faf1f5
+  const primaryColor = [194, 80, 10]; // #C2500A
+  const secondaryColor = [232, 98, 26]; // #E8621A
+  const darkTextColor = [28, 22, 18]; // #1c1612
+  const lightBgColor = [255, 245, 238]; // #fff5ee
 
   // Header Banner
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, 210, 32, 'F');
+  doc.rect(0, 0, 210, 36, 'F');
+
+  // Try to embed brand logo in top-right of header
+  try {
+    const logoInfo = await loadImageDataUrl('agenerativeslicelogo.jpg');
+    // Draw a white rounded badge behind logo
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(178, 4, 26, 26, 3, 3, 'F');
+    doc.addImage(logoInfo.dataUrl, 'JPEG', 180, 6, 22, 22);
+  } catch (_) {
+    // Logo unavailable — skip silently
+  }
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(15);
-  doc.text(event.name.toUpperCase(), 14, 14);
+  doc.setFontSize(14);
+  doc.text(event.name.toUpperCase(), 14, 13);
 
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setFont('helvetica', 'normal');
-  doc.text('THE VELVET TRUNK - OWNER EXECUTIVE & FINANCIAL LEDGER REPORT', 14, 22);
+  doc.text('A GENERATIVE SLICE - EVENT EXECUTIVE & FINANCIAL LEDGER REPORT', 14, 21);
   doc.text(
     `Date: ${new Date().toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
     })}`,
-    145,
-    22
+    14,
+    28
   );
 
-  let y = 38;
+  let y = 42;
 
   // Event Meta Info Box
   doc.setFillColor(lightBgColor[0], lightBgColor[1], lightBgColor[2]);
@@ -501,7 +544,7 @@ export const generateOwnerReportPDF = async (
 
   cards.forEach((card, idx) => {
     const x = 14 + idx * (cardWidth + cardGap);
-    doc.setFillColor(245, 238, 242);
+    doc.setFillColor(255, 245, 238);
     doc.roundedRect(x, y, cardWidth, 16, 2, 2, 'F');
 
     doc.setFontSize(7);
@@ -581,7 +624,7 @@ export const generateOwnerReportPDF = async (
       }
 
       if (index % 2 === 0) {
-        doc.setFillColor(252, 247, 250);
+        doc.setFillColor(255, 248, 240);
         doc.rect(14, y, 182, 7, 'F');
       }
 
@@ -679,7 +722,7 @@ export const generateOwnerReportPDF = async (
     y = 15;
   }
 
-  doc.setDrawColor(210, 194, 204);
+  doc.setDrawColor(245, 201, 168);
   doc.line(14, y, 196, y);
 
   y += 5;
@@ -687,7 +730,7 @@ export const generateOwnerReportPDF = async (
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'italic');
   doc.text(
-    `The Velvet Trunk Event Management  |  Owner Executive & Financial Report  |  Page ${doc.getNumberOfPages()}`,
+    `A Generative Slice  |  Event Executive & Financial Report  |  Page ${doc.getNumberOfPages()}`,
     14,
     y
   );

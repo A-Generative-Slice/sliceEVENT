@@ -1,4 +1,4 @@
-# Velvet Trunk: Luxury Exhibition & Vendor Stall Booking Platform 🎪✨
+# sliceEVENT — Exhibition & Stall Management Platform 🎪✨
 
 <div align="center">
 
@@ -9,7 +9,7 @@
 [![jsPDF](https://img.shields.io/badge/PDF_Engine-jsPDF-red?style=for-the-badge)](https://github.com/parallax/jsPDF)
 [![Motion](https://img.shields.io/badge/Animations-Motion-FF4081?style=for-the-badge)](https://motion.dev/)
 
-**Comprehensive Stall Reservation, Vendor Onboarding & Exhibition Management Platform for Velvet Trunk Lifestyle Flea Markets.**
+**Comprehensive Stall Reservation, Vendor Onboarding & Exhibition Management Platform by A Generative Slice.**
 
 </div>
 
@@ -17,9 +17,9 @@
 
 ## 📖 Overview
 
-**Velvet Trunk** is a premier curator of high-end lifestyle, fashion, and artisanal flea exhibitions. Managing dozens of prospective vendors across multi-day luxury pop-up events requires strict stall allocation, payment verification, and clear communications.
+**sliceEVENT** is an all-in-one digital command center built specifically for lifestyle exhibitions, pop-ups, flea markets, and trade shows. Engineered by **A Generative Slice**, this platform digitizes the entire exhibition operations pipeline.
 
-Engineered by **A Generative Slice**, this platform digitizes the entire exhibition operations pipeline. Event organizers can schedule city exhibitions, define stall categories (Premium Front-Facing F-Series vs. Standard Artisanal S-Series), process vendor registrations, issue instant branded PDF invoices, and sync reservations with a cloud **Supabase** database.
+Event organizers can schedule city exhibitions, define dynamic stall categories with custom capacities, process vendor registrations, issue instant branded PDF invoices & availability reports, broadcast real-time availability on WhatsApp, and synchronize reservations with cloud **Supabase** databases or local device storage.
 
 ---
 
@@ -28,27 +28,32 @@ Engineered by **A Generative Slice**, this platform digitizes the entire exhibit
 ```mermaid
 flowchart TD
     Admin[Event Coordinator] --> EventMgr[Create / Manage Exhibition Events]
-    EventMgr --> SeriesConfig[Configure Stall Series: F-Series & S-Series]
-    Vendor[Brand / Vendor] --> StallSelect[Interactive Stall Floorplan]
-    StallSelect --> Booking[Submit Reservation & Category Details]
-    Booking --> PDF[Auto-Generate PDF Invoice via jsPDF]
+    EventMgr --> DynamicCategories[Add Custom Stall Categories & Capacity Limits]
+    Vendor[Brand / Vendor] --> StallSelect[Interactive Floor Plan & Availability]
+    StallSelect --> Booking[Submit Reservation & Payment Details]
+    Booking --> PDF[Auto-Generate Branded PDF Reports with Logo via jsPDF]
     Booking --> CloudSync[(Supabase Cloud Storage / Local Fallback)]
     Admin --> Dashboard[Completed Events, Revenue & Vendor Analytics]
 ```
 
-### 1. 🎪 Exhibition Lifecycle Management
-- Manage upcoming, live, and past exhibitions across different convention centers and cities.
-- Track total stall capacity, occupied booths, and revenue milestones per venue.
+### 1. 🎪 Dynamic Stall Category System
+- No locked or rigid templates: organizers can add as many stall categories as needed (e.g. *Front Pavilion, Food Village, Designer Row, VIP Lounge*) and assign exact custom capacities.
+- Full backward-compatibility with existing exhibitions and legacy stall configurations.
 
-### 2. 📍 Interactive Stall Series (F-Series & S-Series)
-- **F-Series (Front-Row / Premium)**: High-footfall entrance stalls for luxury fashion, fine jewelry, and anchor brands.
-- **S-Series (Standard / Artisanal)**: Curated booths for handcrafted accessories, gourmet foods, and boutique crafts.
+### 2. 📄 Dual Branded PDF Generation
+- **Vendor Copy:** Features the **A Generative Slice** brand crest, overall occupancy metrics, dedicated per-category breakdown (Total, Booked, and Available counts per zone), and layout blueprint—with **zero confidential financial data**.
+- **Owner Executive Copy:** Complete financial audit with revenue totals, advance collected, pending balance, and detailed vendor ledger.
 
-### 3. 📄 Automated PDF Booking Vouchers
-- Client-side invoice compilation via **jsPDF** generating formal confirmation receipts with event terms, stall numbers, and organizer contact details.
+### 3. 📲 1-Click WhatsApp Availability Broadcaster
+- Auto-generates clean, structured vacancy updates listing exact vacant and booked stalls, ready to copy and paste directly into WhatsApp vendor groups.
 
-### 4. 🔄 Hybrid Storage Architecture
-- Connects directly to **Supabase** for real-time cloud data persistence while retaining robust offline local storage fallbacks (`lib/storage.ts`).
+### 4. 🗺️ Interactive Blueprint & Floor Plan
+- Upload venue layout maps with interactive 1-finger pan and 2-finger pinch-to-zoom on mobile and desktop.
+
+### 5. 🔄 Hybrid Local-First & Cloud Architecture
+- Operates 100% offline with zero data loss using local device storage.
+- Optional 1-click **Supabase** cloud sync for real-time multi-device collaboration.
+- 1-click JSON backup export and restore.
 
 ---
 
@@ -58,10 +63,10 @@ flowchart TD
 |---|---|
 | **Frontend Framework** | React 19 with Fast Refresh |
 | **Language** | TypeScript strict typing |
-| **Styling** | Tailwind CSS v4 with PostCSS |
+| **Styling** | Tailwind CSS v4 with brand warm-orange palette |
 | **Animations** | Motion (Framer Motion v12) |
-| **Database** | Supabase (`@supabase/supabase-js`) |
-| **PDF Generation** | jsPDF |
+| **Database** | Supabase (`@supabase/supabase-js`) with local fallback |
+| **PDF Generation** | jsPDF (with high-res vector branding) |
 | **Icons** | Lucide React |
 | **Bundler** | Vite 6 |
 
@@ -70,21 +75,24 @@ flowchart TD
 ## 📂 Repository Structure
 
 ```
-VelvetTrunk/
-├── public/                     # Static media and brand graphics
+sliceEVENT/
+├── public/                     # Static media and brand graphics (agenerativeslicelogo.jpg)
 ├── src/
 │   ├── components/             # Screen views & UI elements
-│   │   ├── Navigation.tsx      # Top tab bar navigation
+│   │   ├── Navigation.tsx      # Top desktop navbar & mobile bottom bar
 │   │   ├── HomeView.tsx        # Active exhibitions dashboard
-│   │   ├── CreateEventView.tsx # Exhibition creation wizard
-│   │   ├── SeriesStallsView.tsx # F-Series & S-Series stall grid
+│   │   ├── CreateEventView.tsx # Exhibition creation wizard with dynamic categories
+│   │   ├── SeriesStallsView.tsx # Stall booking grid and payment logger
 │   │   ├── EventDetailsView.tsx # Specific event analytics & roster
-│   │   └── SupabaseModal.tsx   # Cloud sync configuration modal
-│   ├── lib/                    # Supabase client & local storage sync logic
-│   ├── types.ts                # Event, Stall, and Vendor type contracts
+│   │   ├── CompletedEventsView.tsx # Archived exhibitions
+│   │   ├── SupportView.tsx     # Direct developer & concierge support
+│   │   └── SupabaseModal.tsx   # Cloud sync & backup modal
+│   ├── lib/
+│   │   ├── storage.ts          # Local storage, stats calculation & Supabase client
+│   │   └── pdfGenerator.ts     # Branded PDF generators (Vendor & Owner copies)
+│   ├── types.ts                # Event, Stall, and Vendor type definitions
 │   ├── App.tsx                 # Core application state orchestrator
 │   └── main.tsx                # Application mount point
-├── velvettrunklogo.png         # High-resolution brand crest
 ├── package.json                # Dependencies and npm scripts
 ├── vite.config.ts              # Vite bundler configuration
 └── .env.example                # Environment variable template
@@ -102,8 +110,8 @@ VelvetTrunk/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/A-Generative-Slice/VelvetTrunk.git
-cd VelvetTrunk
+git clone https://github.com/A-Generative-Slice/sliceEVENT.git
+cd sliceEVENT
 
 # 2. Install dependencies
 npm install
@@ -131,5 +139,5 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## 📄 License & Attribution
 
-Designed and engineered by **A Generative Slice** for **Velvet Trunk**.  
-Copyright © 2026 Velvet Trunk & A Generative Slice. All rights reserved.
+Designed and engineered by **A Generative Slice**.  
+Copyright © 2026 A Generative Slice. All rights reserved.

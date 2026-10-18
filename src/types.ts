@@ -44,6 +44,13 @@ export interface VendorBooking {
   createdAt: string;
 }
 
+/** A dynamic stall series/category defined by the event organizer */
+export interface StallSeriesConfig {
+  id: string;    // unique identifier
+  name: string;  // e.g. "F Series", "Premium Zone", "Corner Stalls"
+  limit: number; // total stall count for this category
+}
+
 export interface EventItem {
   id: string;
   name: string;
@@ -52,8 +59,11 @@ export interface EventItem {
   endDate: string;
   timing: string;
   mapLocation: string;
+  /** Legacy fields - kept for backward compat with existing saved events */
   fSeriesLimit: number;
   sSeriesLimit: number;
+  /** Dynamic stall category configs. When present, these replace fSeriesLimit/sSeriesLimit */
+  stallSeriesConfigs?: StallSeriesConfig[];
   layoutImageUrl: string;
   bannerImageUrl?: string;
   isCompleted: boolean;
@@ -61,17 +71,28 @@ export interface EventItem {
   updatedAt: string;
 }
 
+/** Per-category breakdown used in dashboard stats */
+export interface SeriesStat {
+  name: string;
+  limit: number;
+  booked: number;
+  available: number;
+}
+
 export interface EventDashboardStats {
   totalStalls: number;
   stallsBooked: number;
   stallsAvailable: number;
-  totalValue: number; // sum of stall rent
+  totalValue: number;    // sum of stall rent
   totalCollected: number; // sum of advances/paid
-  totalPending: number; // sum of remaining balance
+  totalPending: number;  // sum of remaining balance
+  /** Legacy F/S counts for backward compat */
   fBooked: number;
   fLimit: number;
   sBooked: number;
   sLimit: number;
+  /** Per-category breakdown */
+  seriesStats: SeriesStat[];
   paidCount: number;
   partialCount: number;
   unpaidCount: number;

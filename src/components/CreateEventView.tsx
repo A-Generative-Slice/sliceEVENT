@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { EventItem } from '../types';
+import { EventItem, StallSeriesConfig } from '../types';
 import { DEFAULT_LAYOUT_IMAGE } from '../lib/storage';
 import {
   ArrowLeft,
   Calendar,
   MapPin,
   Clock,
-  Layers,
   Upload,
   Image as ImageIcon,
   Check,
-  Building,
+  Plus,
+  Trash2,
+  Layers,
 } from 'lucide-react';
 
 interface CreateEventViewProps {
@@ -29,6 +30,26 @@ function formatTime12h(time24: string): string {
   return `${h12.toString().padStart(2, '0')}:${mStr} ${period}`;
 }
 
+function genId(): string {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+/** Derive initial stall series configs from event (supports legacy F/S and new dynamic) */
+function getInitialConfigs(event?: EventItem | null): StallSeriesConfig[] {
+  if (event?.stallSeriesConfigs && event.stallSeriesConfigs.length > 0) {
+    return event.stallSeriesConfigs;
+  }
+  if (event) {
+    // Legacy event: seed two configs from F/S limits
+    return [
+      { id: genId(), name: 'F Series', limit: event.fSeriesLimit || 100 },
+      { id: genId(), name: 'S Series', limit: event.sSeriesLimit || 20 },
+    ];
+  }
+  // New event: start empty
+  return [];
+}
+
 export const CreateEventView: React.FC<CreateEventViewProps> = ({
   initialEvent,
   onSave,
@@ -39,18 +60,14 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
   const [startDate, setStartDate] = useState(initialEvent?.startDate || '');
   const [endDate, setEndDate] = useState(initialEvent?.endDate || '');
 
-  // Time pickers for Opening and Closing timing
   const [startTime, setStartTime] = useState(initialEvent?.timing ? '10:00' : '');
   const [endTime, setEndTime] = useState(initialEvent?.timing ? '21:00' : '');
 
   const [mapLocation, setMapLocation] = useState(initialEvent?.mapLocation || '');
 
-  // Stall Limits: F Series & S Series (supports empty string state for smooth backspacing)
-  const [fSeriesLimit, setFSeriesLimit] = useState<number | ''>(
-    initialEvent?.fSeriesLimit ?? 100
-  );
-  const [sSeriesLimit, setSSeriesLimit] = useState<number | ''>(
-    initialEvent?.sSeriesLimit ?? 20
+  // Dynamic stall category configs
+  const [stallConfigs, setStallConfigs] = useState<StallSeriesConfig[]>(
+    getInitialConfigs(initialEvent)
   );
 
   // Layout Image
@@ -58,7 +75,6 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
     initialEvent?.layoutImageUrl || DEFAULT_LAYOUT_IMAGE
   );
   const [imageFileName, setImageFileName] = useState<string>('');
-
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,8 +96,28 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
     }
   };
 
+  // --- Stall config handlers ---
+  const addStallCategory = () => {
+    setStallConfigs((prev) => [
+      ...prev,
+      { id: genId(), name: '', limit: 50 },
+    ]);
+  };
+
+  const updateStallConfig = (id: string, field: 'name' | 'limit', value: string | number) => {
+    setStallConfigs((prev) =>
+      prev.map((cfg) => (cfg.id === id ? { ...cfg, [field]: value } : cfg))
+    );
+  };
+
+  const removeStallConfig = (id: string) => {
+    setStallConfigs((prev) => prev.filter((cfg) => cfg.id !== id));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
+
     if (!name.trim()) {
       setErrorMsg('Please enter the Event Name.');
       return;
@@ -90,14 +126,31 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
       setErrorMsg('Please enter the Location.');
       return;
     }
+    if (stallConfigs.length === 0) {
+      setErrorMsg('Please add at least one Stall Category.');
+      return;
+    }
+    for (const cfg of stallConfigs) {
+      if (!cfg.name.trim()) {
+        setErrorMsg('Please give every stall category a name.');
+        return;
+      }
+      if (!cfg.limit || cfg.limit < 1) {
+        setErrorMsg(`Stall count for "${cfg.name || 'a category'}" must be at least 1.`);
+        return;
+      }
+    }
 
-    // Format combined timing string if times selected
     let timingString = '';
     if (startTime && endTime) {
       timingString = `${formatTime12h(startTime)} - ${formatTime12h(endTime)}`;
     } else if (startTime) {
       timingString = `From ${formatTime12h(startTime)}`;
     }
+
+    // Compute legacy F/S fields from first two configs (or 0 if dynamic)
+    const fLegacy = stallConfigs[0] ? Number(stallConfigs[0].limit) : 0;
+    const sLegacy = stallConfigs[1] ? Number(stallConfigs[1].limit) : 0;
 
     onSave(
       {
@@ -107,8 +160,13 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
         endDate,
         timing: timingString,
         mapLocation: mapLocation.trim(),
-        fSeriesLimit: fSeriesLimit === '' ? 100 : Number(fSeriesLimit) || 100,
-        sSeriesLimit: sSeriesLimit === '' ? 20 : Number(sSeriesLimit) || 20,
+        fSeriesLimit: fLegacy,
+        sSeriesLimit: sLegacy,
+        stallSeriesConfigs: stallConfigs.map((cfg) => ({
+          ...cfg,
+          name: cfg.name.trim(),
+          limit: Number(cfg.limit) || 1,
+        })),
         layoutImageUrl: layoutImageUrl || DEFAULT_LAYOUT_IMAGE,
         bannerImageUrl: layoutImageUrl || DEFAULT_LAYOUT_IMAGE,
         isCompleted: initialEvent?.isCompleted || false,
@@ -118,132 +176,121 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-12 max-w-3xl mx-auto w-full">
-      {/* Top Header Navigation */}
-      <div className="flex items-center gap-3 pt-2">
+    <div className="flex flex-col gap-5 pb-16 w-full max-w-2xl mx-auto animate-fadeIn">
+      {/* Top Header */}
+      <div className="flex items-center justify-between pt-2">
         <button
           onClick={onBack}
-          className="w-10 h-10 rounded-xl bg-[#ffffff] border border-[#e9e0e4] flex items-center justify-center text-[#491546] shadow-xs active:scale-95 transition-all"
+          className="w-10 h-10 rounded-xl bg-[#ffffff] border border-[#ffe0cc] flex items-center justify-center text-[#C2500A] shadow-xs active:scale-95 transition-all"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div>
-          <h1 className="text-xl font-bold text-[#491546]">
-            {initialEvent ? 'Edit Event Details' : 'Create New Event'}
-          </h1>
-          <p className="text-xs text-[#81737c]">
-            Define layout, timings, map & stall limits
-          </p>
-        </div>
+        <span className="text-xs font-extrabold uppercase tracking-widest text-[#E8621A]">
+          {initialEvent ? 'Edit Exhibition Event' : 'Create New Event'}
+        </span>
       </div>
 
+      {/* Error */}
       {errorMsg && (
-        <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl">
+        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-bold rounded-xl">
           {errorMsg}
         </div>
       )}
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {/* 1. Event Name */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 bg-[#ffffff] rounded-2xl border border-[#ffe0cc] p-5 shadow-xs">
+
+        {/* Event Name */}
         <div className="space-y-1.5">
-          <label htmlFor="event-name-input" className="text-xs font-bold uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-            <Building className="w-3.5 h-3.5 text-[#904277]" /> Event Name *
+          <label htmlFor="event-name-input" className="text-xs font-bold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+            <Layers className="w-3.5 h-3.5 text-[#E8621A]" /> Event Name
           </label>
           <input
             id="event-name-input"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Royal Velvet Diwali Trunk Show"
-            required
-            className="w-full px-4 py-3 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-sm font-medium text-[#1e1a1d] focus:outline-hidden focus:border-[#491546] focus:ring-1 focus:ring-[#491546] shadow-2xs"
+            placeholder="e.g. Autumn Pop-Up Market 2026"
+            className="w-full px-4 py-3 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-sm font-medium text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] shadow-2xs"
           />
         </div>
 
-        {/* 2. Location */}
+        {/* Location */}
         <div className="space-y-1.5">
-          <label htmlFor="location-name-input" className="text-xs font-bold uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-[#904277]" /> Location Name *
+          <label htmlFor="location-input" className="text-xs font-bold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[#E8621A]" /> Location / Venue
           </label>
           <input
-            id="location-name-input"
+            id="location-input"
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="e.g. Grand Starlight Ballroom, Bandra West"
-            required
-            className="w-full px-4 py-3 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-sm font-medium text-[#1e1a1d] focus:outline-hidden focus:border-[#491546] focus:ring-1 focus:ring-[#491546] shadow-2xs"
+            placeholder="e.g. Hotel Taj Ballroom, Mumbai"
+            className="w-full px-4 py-3 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-sm font-medium text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] shadow-2xs"
           />
         </div>
 
-        {/* 3. Dates & Timings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label htmlFor="start-date-input" className="text-xs font-bold uppercase tracking-wider text-[#491546] flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-[#904277]" /> Start Date
-            </label>
+        {/* Dates */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-[#7c6354] uppercase block flex items-center gap-1">
+              <Calendar className="w-3 h-3" /> Start Date
+            </span>
             <input
-              id="start-date-input"
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-medium text-[#1e1a1d] focus:outline-hidden focus:border-[#491546] shadow-2xs cursor-pointer"
+              className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] cursor-pointer shadow-2xs"
             />
           </div>
-
-          <div className="space-y-1.5">
-            <label htmlFor="end-date-input" className="text-xs font-bold uppercase tracking-wider text-[#491546] flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-[#904277]" /> End Date
-            </label>
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-[#7c6354] uppercase block flex items-center gap-1">
+              <Calendar className="w-3 h-3" /> End Date
+            </span>
             <input
-              id="end-date-input"
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-medium text-[#1e1a1d] focus:outline-hidden focus:border-[#491546] shadow-2xs cursor-pointer"
+              className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] cursor-pointer shadow-2xs"
             />
           </div>
         </div>
 
-        {/* Exhibition Timing with Clock Pop-up Time Pickers */}
+        {/* Timing */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-[#904277]" /> Exhibition Timing
+          <label className="text-xs font-bold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-[#E8621A]" /> Exhibition Timing
           </label>
-
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-[#81737c] uppercase block">Opening Time</span>
+              <span className="text-[10px] font-bold text-[#7c6354] uppercase block">Opening Time</span>
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-semibold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546] cursor-pointer shadow-2xs"
+                className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] cursor-pointer shadow-2xs"
               />
             </div>
-
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-[#81737c] uppercase block">Closing Time</span>
+              <span className="text-[10px] font-bold text-[#7c6354] uppercase block">Closing Time</span>
               <input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-semibold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546] cursor-pointer shadow-2xs"
+                className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] cursor-pointer shadow-2xs"
               />
             </div>
           </div>
           {startTime && endTime && (
-            <p className="text-[11px] font-bold text-[#491546] pt-1">
-              Selected Timing: <span className="text-[#904277]">{formatTime12h(startTime)} - {formatTime12h(endTime)}</span>
+            <p className="text-[11px] font-bold text-[#C2500A] pt-1">
+              Selected Timing: <span className="text-[#E8621A]">{formatTime12h(startTime)} – {formatTime12h(endTime)}</span>
             </p>
           )}
         </div>
 
-        {/* Map Location Link */}
+        {/* Map Location */}
         <div className="space-y-1.5">
-          <label htmlFor="map-location-input" className="text-xs font-bold uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-[#904277]" /> Map Location (Google Maps Link)
+          <label htmlFor="map-location-input" className="text-xs font-bold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[#E8621A]" /> Map Location (Google Maps Link)
           </label>
           <input
             id="map-location-input"
@@ -251,84 +298,102 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
             value={mapLocation}
             onChange={(e) => setMapLocation(e.target.value)}
             placeholder="e.g. https://maps.google.com/?q=Hotel+Taj+Ballroom"
-            className="w-full px-4 py-3 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-medium text-[#1e1a1d] focus:outline-hidden focus:border-[#491546] shadow-2xs"
+            className="w-full px-4 py-3 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-medium text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] shadow-2xs"
           />
         </div>
 
-        {/* CLEAN STALL CAPACITY LIMITS: F SERIES AND S SERIES */}
-        <div className="space-y-2 pt-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-[#904277]" /> Stall Capacity Limits
-          </label>
-          
-          <div className="grid grid-cols-2 gap-4">
-            {/* Box 1: F Series Box */}
-            <div className="p-4 rounded-2xl bg-[#ffffff] border-2 border-[#632c5e]/30 shadow-xs flex flex-col gap-2.5 items-center text-center">
-              <span className="px-3 py-1 rounded-lg bg-[#632c5e] text-white text-xs font-extrabold uppercase tracking-wider">
-                F SERIES
-              </span>
-              <div className="w-full mt-1">
-                <input
-                  type="number"
-                  min="1"
-                  max="500"
-                  value={fSeriesLimit}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === '') {
-                      setFSeriesLimit('');
-                    } else {
-                      const parsed = parseInt(val, 10);
-                      setFSeriesLimit(isNaN(parsed) ? '' : parsed);
-                    }
-                  }}
-                  placeholder="100"
-                  className="w-full px-3 py-2.5 bg-[#faf1f5] border border-[#d2c2cc] rounded-xl text-center font-extrabold text-lg text-[#491546] focus:outline-hidden focus:border-[#491546]"
-                />
-              </div>
-            </div>
-
-            {/* Box 2: S Series Box */}
-            <div className="p-4 rounded-2xl bg-[#ffffff] border-2 border-[#904277]/30 shadow-xs flex flex-col gap-2.5 items-center text-center">
-              <span className="px-3 py-1 rounded-lg bg-[#fea0db] text-[#491546] text-xs font-extrabold uppercase tracking-wider">
-                S SERIES
-              </span>
-              <div className="w-full mt-1">
-                <input
-                  type="number"
-                  min="1"
-                  max="200"
-                  value={sSeriesLimit}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === '') {
-                      setSSeriesLimit('');
-                    } else {
-                      const parsed = parseInt(val, 10);
-                      setSSeriesLimit(isNaN(parsed) ? '' : parsed);
-                    }
-                  }}
-                  placeholder="20"
-                  className="w-full px-3 py-2.5 bg-[#faf1f5] border border-[#d2c2cc] rounded-xl text-center font-extrabold text-lg text-[#491546] focus:outline-hidden focus:border-[#491546]"
-                />
-              </div>
-            </div>
+        {/* ─── DYNAMIC STALL CATEGORIES ─── */}
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-[#E8621A]" /> Stall Categories
+            </label>
+            <span className="text-[10px] text-[#7c6354] font-semibold">
+              {stallConfigs.length} {stallConfigs.length === 1 ? 'category' : 'categories'} · {stallConfigs.reduce((s, c) => s + (Number(c.limit) || 0), 0)} total stalls
+            </span>
           </div>
+
+          {stallConfigs.length === 0 && (
+            <div className="p-4 rounded-xl border border-dashed border-[#f5c9a8] bg-[#fff5ee] text-center text-xs text-[#7c6354] font-medium">
+              No stall categories yet. Click <span className="font-bold text-[#C2500A]">+ Add Stall Category</span> below to define your stall zones.
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2">
+            {stallConfigs.map((cfg, idx) => (
+              <div
+                key={cfg.id}
+                className="flex items-center gap-2 p-3 rounded-xl bg-[#fff5ee] border border-[#f5c9a8] group"
+              >
+                {/* Index badge */}
+                <span className="w-6 h-6 rounded-lg bg-[#C2500A] text-white text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                  {idx + 1}
+                </span>
+
+                {/* Category name input */}
+                <input
+                  type="text"
+                  value={cfg.name}
+                  onChange={(e) => updateStallConfig(cfg.id, 'name', e.target.value)}
+                  placeholder="Category name (e.g. F Series, Premium, Corner)"
+                  className="flex-1 min-w-0 px-3 py-2 bg-[#ffffff] border border-[#f5c9a8] rounded-lg text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] shadow-2xs"
+                />
+
+                {/* Stall count input */}
+                <div className="shrink-0 w-24">
+                  <input
+                    type="number"
+                    min="1"
+                    max="9999"
+                    value={cfg.limit}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateStallConfig(cfg.id, 'limit', val === '' ? 1 : parseInt(val, 10) || 1);
+                    }}
+                    placeholder="Count"
+                    className="w-full px-3 py-2 bg-[#ffffff] border border-[#f5c9a8] rounded-lg text-xs font-extrabold text-[#C2500A] text-center focus:outline-hidden focus:border-[#C2500A] shadow-2xs"
+                  />
+                </div>
+
+                <span className="text-[10px] text-[#7c6354] font-bold shrink-0">stalls</span>
+
+                {/* Remove button */}
+                <button
+                  type="button"
+                  onClick={() => removeStallConfig(cfg.id)}
+                  className="w-7 h-7 rounded-lg bg-red-50 border border-red-200 text-red-500 hover:bg-red-100 active:scale-95 transition-all flex items-center justify-center shrink-0"
+                  title="Remove this category"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Add Category Button */}
+          <button
+            type="button"
+            onClick={addStallCategory}
+            className="w-full py-3 border-2 border-dashed border-[#E8621A] text-[#C2500A] font-bold text-sm rounded-xl hover:bg-[#fff0e6] active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            Add Stall Category
+          </button>
         </div>
 
-        {/* Sleek Layout Plan Upload Dropzone (No JPG mention, Better UI) */}
+        {/* Layout Plan Upload */}
         <div className="space-y-2 pt-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-            <ImageIcon className="w-3.5 h-3.5 text-[#904277]" /> Exhibition Layout Plan
+          <label className="text-xs font-bold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+            <ImageIcon className="w-3.5 h-3.5 text-[#E8621A]" /> Exhibition Layout Plan
           </label>
 
-          <div className="p-5 rounded-2xl bg-[#ffffff] border-2 border-dashed border-[#d2c2cc] hover:border-[#491546] transition-all space-y-4 text-center">
+          <div className="p-5 rounded-2xl bg-[#ffffff] border-2 border-dashed border-[#f5c9a8] hover:border-[#C2500A] transition-all space-y-4 text-center">
             <div className="flex flex-col items-center justify-center gap-2">
-              <div className="w-12 h-12 rounded-2xl bg-[#faf1f5] text-[#491546] flex items-center justify-center shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#fff5ee] text-[#C2500A] flex items-center justify-center shadow-xs">
                 <Upload className="w-6 h-6" />
               </div>
               <div>
-                <label className="px-5 py-2.5 bg-[#491546] hover:bg-[#632c5e] text-white text-xs font-bold rounded-xl cursor-pointer shadow-md active:scale-95 transition-all inline-flex items-center gap-2">
+                <label className="px-5 py-2.5 bg-[#C2500A] hover:bg-[#a8400a] text-white text-xs font-bold rounded-xl cursor-pointer shadow-md active:scale-95 transition-all inline-flex items-center gap-2">
                   <span>Upload Layout Plan</span>
                   <input
                     type="file"
@@ -338,13 +403,12 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
                   />
                 </label>
               </div>
-              <p className="text-[11px] text-[#81737c] font-medium mt-1">
+              <p className="text-[11px] text-[#7c6354] font-medium mt-1">
                 {imageFileName ? `Selected File: ${imageFileName}` : 'Select a custom layout image or use default floor plan'}
               </p>
             </div>
 
-            {/* Layout Image Preview */}
-            <div className="w-full h-48 bg-[#f4ecef] rounded-xl border border-[#e9e0e4] overflow-hidden relative flex items-center justify-center">
+            <div className="w-full h-48 bg-[#fff0e6] rounded-xl border border-[#ffe0cc] overflow-hidden relative flex items-center justify-center">
               <img
                 src={layoutImageUrl}
                 alt="Layout Plan Preview"
@@ -357,12 +421,12 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <button
           type="submit"
-          className="w-full py-4 bg-gradient-to-r from-[#491546] to-[#632c5e] hover:from-[#632c5e] hover:to-[#904277] text-white font-extrabold text-base rounded-2xl shadow-lg shadow-[#491546]/20 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"
+          className="w-full py-4 bg-gradient-to-r from-[#C2500A] to-[#a8400a] hover:from-[#a8400a] hover:to-[#E8621A] text-white font-extrabold text-base rounded-2xl shadow-lg shadow-[#C2500A]/20 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"
         >
-          <Check className="w-5 h-5 text-[#fea0db] stroke-[3]" />
+          <Check className="w-5 h-5 text-[#ffb347] stroke-[3]" />
           <span>{initialEvent ? 'Save Event Changes' : 'Create & Launch Event'}</span>
         </button>
       </form>

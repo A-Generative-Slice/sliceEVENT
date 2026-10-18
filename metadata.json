@@ -1,6 +1,6 @@
 {
-  "name": "The Velvet Trunk",
-  "description": "Mobile-friendly PWA for luxury event organizing, stall allocations (F & S series), vendor management, and financial tracking.",
+  "name": "sliceEVENT",
+  "description": "Mobile-friendly PWA for luxury event organizing, dynamic stall allocations, vendor management, and financial tracking by A Generative Slice.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

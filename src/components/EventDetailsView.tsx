@@ -246,7 +246,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
       <div className="flex items-center justify-between pt-2">
         <button
           onClick={onBack}
-          className="w-10 h-10 rounded-xl bg-[#ffffff] border border-[#e9e0e4] flex items-center justify-center text-[#491546] shadow-xs active:scale-95 transition-all"
+          className="w-10 h-10 rounded-xl bg-[#ffffff] border border-[#ffe0cc] flex items-center justify-center text-[#C2500A] shadow-xs active:scale-95 transition-all"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -254,10 +254,10 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
         <div className="flex items-center gap-1.5">
           <button
             onClick={onEditEvent}
-            className="p-2.5 rounded-xl bg-[#ffffff] border border-[#d2c2cc] text-[#491546] hover:bg-[#faf1f5] active:scale-95 transition-all flex items-center gap-1.5 text-xs font-bold"
+            className="p-2.5 rounded-xl bg-[#ffffff] border border-[#f5c9a8] text-[#C2500A] hover:bg-[#fff5ee] active:scale-95 transition-all flex items-center gap-1.5 text-xs font-bold"
             title="Edit Event Details"
           >
-            <Edit className="w-4 h-4 text-[#904277]" /> Edit
+            <Edit className="w-4 h-4 text-[#E8621A]" /> Edit
           </button>
           <button
             onClick={() => setShowDeleteConfirm(true)}
@@ -284,13 +284,13 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
       )}
 
       {/* Event Header Banner Card */}
-      <div className="bg-[#ffffff] rounded-2xl border border-[#e9e0e4] p-5 shadow-sm space-y-3">
+      <div className="bg-[#ffffff] rounded-2xl border border-[#ffe0cc] p-5 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <span
             className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
               event.isCompleted
                 ? 'bg-emerald-100 text-emerald-800'
-                : 'bg-[#fea0db] text-[#491546]'
+                : 'bg-[#ffb347] text-[#C2500A]'
             }`}
           >
             {event.isCompleted ? 'COMPLETED EVENT' : 'ACTIVE EXHIBITION'}
@@ -298,32 +298,32 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
 
           <button
             onClick={onToggleComplete}
-            className="text-xs font-bold text-[#904277] hover:text-[#491546] underline flex items-center gap-1"
+            className="text-xs font-bold text-[#E8621A] hover:text-[#C2500A] underline flex items-center gap-1"
           >
             {event.isCompleted ? 'Mark as Active' : 'Mark Completed'}
           </button>
         </div>
 
         <div>
-          <h1 className="text-xl font-extrabold text-[#491546] leading-tight">
+          <h1 className="text-xl font-extrabold text-[#C2500A] leading-tight">
             {event.name}
           </h1>
-          <p className="text-xs text-[#4f434c] flex items-center gap-1.5 mt-1">
-            <MapPin className="w-3.5 h-3.5 text-[#904277] shrink-0" />
+          <p className="text-xs text-[#4a3b30] flex items-center gap-1.5 mt-1">
+            <MapPin className="w-3.5 h-3.5 text-[#E8621A] shrink-0" />
             <span>{event.location}</span>
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-[#f4ecef] text-[#81737c]">
+        <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-[#fff0e6] text-[#7c6354]">
           <div className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#904277]" />
-            <span className="font-semibold text-[#1e1a1d]">
+            <Calendar className="w-3.5 h-3.5 text-[#E8621A]" />
+            <span className="font-semibold text-[#1c1612]">
               {formatDateRange(event.startDate, event.endDate)}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-[#904277]" />
-            <span className="font-semibold text-[#1e1a1d]">{event.timing}</span>
+            <Clock className="w-3.5 h-3.5 text-[#E8621A]" />
+            <span className="font-semibold text-[#1c1612]">{event.timing}</span>
           </div>
         </div>
 
@@ -332,9 +332,9 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
             href={event.mapLocation}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 inline-flex items-center gap-1.5 text-xs font-bold text-[#491546] hover:underline"
+            className="mt-1 inline-flex items-center gap-1.5 text-xs font-bold text-[#C2500A] hover:underline"
           >
-            <ExternalLink className="w-3.5 h-3.5 text-[#904277]" /> Open Location Map
+            <ExternalLink className="w-3.5 h-3.5 text-[#E8621A]" /> Open Location Map
           </a>
         )}
 
@@ -369,10 +369,10 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
           <button
             onClick={handleExportOwnerPDF}
             disabled={isExportingOwnerPdf}
-            className="w-full py-3 px-3 rounded-xl bg-gradient-to-r from-[#491546] to-[#632c5e] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs hover:shadow-md active:scale-98 transition-all"
+            className="w-full py-3 px-3 rounded-xl bg-gradient-to-r from-[#C2500A] to-[#a8400a] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs hover:shadow-md active:scale-98 transition-all"
             title="Export full Financial Ledger & Revenue Overview for Event Owner"
           >
-            <Download className="w-4 h-4 text-[#fea0db]" />
+            <Download className="w-4 h-4 text-[#ffb347]" />
             <span>
               {isExportingOwnerPdf
                 ? 'Generating...'
@@ -384,18 +384,18 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
 
       {/* TWO BOXES AT TOP: F SERIES AND S SERIES */}
       <div className="space-y-2">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-[#491546] px-1 flex items-center gap-1.5">
-          <Layers className="w-4 h-4 text-[#904277]" /> Manage Stall Series
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[#C2500A] px-1 flex items-center gap-1.5">
+          <Layers className="w-4 h-4 text-[#E8621A]" /> Manage Stall Series
         </h2>
 
         <div className="grid grid-cols-2 gap-3.5">
           {/* F Series Box */}
           <button
             onClick={onOpenFSeries}
-            className="flex flex-col gap-2 p-4 rounded-2xl bg-gradient-to-br from-[#491546] to-[#632c5e] text-white shadow-md hover:shadow-lg active:scale-95 transition-all text-left relative overflow-hidden group"
+            className="flex flex-col gap-2 p-4 rounded-2xl bg-gradient-to-br from-[#C2500A] to-[#a8400a] text-white shadow-md hover:shadow-lg active:scale-95 transition-all text-left relative overflow-hidden group"
           >
             <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-md bg-[#dc97d0] text-[#491546] text-[10px] font-extrabold uppercase">
+              <span className="px-2 py-0.5 rounded-md bg-[#dc97d0] text-[#C2500A] text-[10px] font-extrabold uppercase">
                 F SERIES
               </span>
             </div>
@@ -416,10 +416,10 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
           {/* S Series Box */}
           <button
             onClick={onOpenSSeries}
-            className="flex flex-col gap-2 p-4 rounded-2xl bg-gradient-to-br from-[#904277] to-[#7c3165] text-white shadow-md hover:shadow-lg active:scale-95 transition-all text-left relative overflow-hidden group"
+            className="flex flex-col gap-2 p-4 rounded-2xl bg-gradient-to-br from-[#E8621A] to-[#9a3d0a] text-white shadow-md hover:shadow-lg active:scale-95 transition-all text-left relative overflow-hidden group"
           >
             <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-md bg-[#fea0db] text-[#491546] text-[10px] font-extrabold uppercase">
+              <span className="px-2 py-0.5 rounded-md bg-[#ffb347] text-[#C2500A] text-[10px] font-extrabold uppercase">
                 S SERIES
               </span>
             </div>
@@ -431,7 +431,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
                   / {stats.sLimit} Booked
                 </span>
               </span>
-              <span className="text-[11px] text-[#fea0db] font-medium mt-0.5 block">
+              <span className="text-[11px] text-[#ffb347] font-medium mt-0.5 block">
                 Manage S Vendors →
               </span>
             </div>
@@ -440,38 +440,38 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
       </div>
 
       {/* DASHBOARD LIKE THINGS */}
-      <div className="bg-[#ffffff] rounded-2xl border border-[#e9e0e4] p-5 shadow-xs space-y-4">
+      <div className="bg-[#ffffff] rounded-2xl border border-[#ffe0cc] p-5 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-extrabold text-[#491546] uppercase tracking-wider flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[#904277]" /> Exhibition Dashboard
+          <h2 className="text-sm font-extrabold text-[#C2500A] uppercase tracking-wider flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-[#E8621A]" /> Exhibition Dashboard
           </h2>
-          <span className="text-xs font-bold text-[#81737c]">
+          <span className="text-xs font-bold text-[#7c6354]">
             {stats.stallsBooked} / {stats.totalStalls} Stalls Occupied
           </span>
         </div>
 
         {/* 3 Metric Cards */}
         <div className="grid grid-cols-3 gap-3 text-center">
-          <div className="bg-[#faf1f5] p-3 rounded-xl border border-[#d2c2cc]/60">
-            <span className="text-[10px] text-[#81737c] font-bold uppercase block">
+          <div className="bg-[#fff5ee] p-3 rounded-xl border border-[#f5c9a8]/60">
+            <span className="text-[10px] text-[#7c6354] font-bold uppercase block">
               Total Stall
             </span>
-            <span className="text-lg font-extrabold text-[#491546]">
+            <span className="text-lg font-extrabold text-[#C2500A]">
               {stats.totalStalls}
             </span>
           </div>
 
-          <div className="bg-[#faf1f5] p-3 rounded-xl border border-[#d2c2cc]/60">
-            <span className="text-[10px] text-[#81737c] font-bold uppercase block">
+          <div className="bg-[#fff5ee] p-3 rounded-xl border border-[#f5c9a8]/60">
+            <span className="text-[10px] text-[#7c6354] font-bold uppercase block">
               Stalls Booked
             </span>
-            <span className="text-lg font-extrabold text-[#904277]">
+            <span className="text-lg font-extrabold text-[#E8621A]">
               {stats.stallsBooked}
             </span>
           </div>
 
-          <div className="bg-[#faf1f5] p-3 rounded-xl border border-[#d2c2cc]/60">
-            <span className="text-[10px] text-[#81737c] font-bold uppercase block">
+          <div className="bg-[#fff5ee] p-3 rounded-xl border border-[#f5c9a8]/60">
+            <span className="text-[10px] text-[#7c6354] font-bold uppercase block">
               Stalls Available
             </span>
             <span className="text-lg font-extrabold text-emerald-700">
@@ -481,12 +481,12 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
         </div>
 
         {/* Financial Metrics Strip */}
-        <div className="pt-2 border-t border-[#f4ecef] space-y-2">
+        <div className="pt-2 border-t border-[#fff0e6] space-y-2">
           <div className="flex items-center justify-between text-xs font-bold">
-            <span className="text-[#81737c] flex items-center gap-1">
-              <DollarSign className="w-3.5 h-3.5 text-[#904277]" /> Revenue Financial Overview
+            <span className="text-[#7c6354] flex items-center gap-1">
+              <DollarSign className="w-3.5 h-3.5 text-[#E8621A]" /> Revenue Financial Overview
             </span>
-            <span className="text-[#491546]">
+            <span className="text-[#C2500A]">
               Total Value: ₹{stats.totalValue.toLocaleString()}
             </span>
           </div>
@@ -556,14 +556,14 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
       </div>
 
       {/* VIEW THE LAYOUT FLOOR PLAN */}
-      <div className="bg-[#ffffff] rounded-2xl border border-[#e9e0e4] p-4 shadow-xs space-y-3">
+      <div className="bg-[#ffffff] rounded-2xl border border-[#ffe0cc] p-4 shadow-xs space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-extrabold text-[#491546] uppercase tracking-wider flex items-center gap-1.5">
-            <Maximize2 className="w-4 h-4 text-[#904277]" /> Exhibition Layout Plan
+          <h2 className="text-xs font-extrabold text-[#C2500A] uppercase tracking-wider flex items-center gap-1.5">
+            <Maximize2 className="w-4 h-4 text-[#E8621A]" /> Exhibition Layout Plan
           </h2>
           <button
             onClick={() => setIsLayoutModalOpen(true)}
-            className="text-xs font-bold text-[#491546] hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-[#C2500A] hover:underline flex items-center gap-1"
           >
             <Maximize2 className="w-3.5 h-3.5" /> Fullscreen View
           </button>
@@ -571,7 +571,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
 
         <div
           onClick={() => setIsLayoutModalOpen(true)}
-          className="w-full h-52 bg-[#faf1f5] rounded-xl overflow-hidden border border-[#d2c2cc] relative cursor-pointer group"
+          className="w-full h-52 bg-[#fff5ee] rounded-xl overflow-hidden border border-[#f5c9a8] relative cursor-pointer group"
         >
           <img
             src={event.layoutImageUrl}
@@ -587,21 +587,21 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
       {/* CLEAN ORIGINAL FULLSCREEN MODAL WITH NATIVE 2-FINGER PINCH ZOOM & 1-FINGER DRAG */}
       {isLayoutModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
-          <div className="bg-[#fff7fa] rounded-2xl max-w-4xl w-full h-[90vh] flex flex-col gap-3 relative overflow-hidden shadow-2xl border border-[#e9e0e4] animate-scaleUp">
+          <div className="bg-[#fffbf7] rounded-2xl max-w-4xl w-full h-[90vh] flex flex-col gap-3 relative overflow-hidden shadow-2xl border border-[#ffe0cc] animate-scaleUp">
             {/* Clean Original Header */}
-            <div className="px-4 py-3 bg-[#ffffff] border-b border-[#e9e0e4] flex items-center justify-between">
+            <div className="px-4 py-3 bg-[#ffffff] border-b border-[#ffe0cc] flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-sm text-[#491546]">
+                <h3 className="font-bold text-sm text-[#C2500A]">
                   {event.name} - Floor Plan Layout
                 </h3>
-                <p className="text-[11px] text-[#81737c]">
+                <p className="text-[11px] text-[#7c6354]">
                   Pinch 2 fingers to zoom • Drag 1 finger to move
                 </p>
               </div>
 
               <button
                 onClick={() => setIsLayoutModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#e9e0e4] text-[#491546] hover:bg-[#d2c2cc] flex items-center justify-center font-bold transition-colors"
+                className="w-8 h-8 rounded-full bg-[#ffe0cc] text-[#C2500A] hover:bg-[#f5c9a8] flex items-center justify-center font-bold transition-colors"
                 title="Close"
               >
                 <X className="w-5 h-5" />
@@ -609,7 +609,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
             </div>
 
             {/* Gesture-Enabled Zoomable Floor Plan Viewer */}
-            <div className="flex-1 bg-[#1e1a1d] rounded-xl overflow-hidden relative">
+            <div className="flex-1 bg-[#1c1612] rounded-xl overflow-hidden relative">
               <TouchZoomableImageViewer
                 src={event.layoutImageUrl}
                 alt={`${event.name} Floor Plan`}
@@ -620,7 +620,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
             <div className="px-4 pb-3">
               <button
                 onClick={() => setIsLayoutModalOpen(false)}
-                className="w-full py-2.5 bg-[#491546] hover:bg-[#632c5e] text-white text-xs font-bold rounded-xl active:scale-95 transition-all shadow-xs"
+                className="w-full py-2.5 bg-[#C2500A] hover:bg-[#a8400a] text-white text-xs font-bold rounded-xl active:scale-95 transition-all shadow-xs"
               >
                 Close Floor Plan
               </button>
@@ -632,20 +632,20 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
       {/* DELETE CONFIRMATION MODAL */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#ffffff] rounded-2xl p-6 max-w-sm w-full space-y-4 border border-[#e9e0e4] shadow-xl">
+          <div className="bg-[#ffffff] rounded-2xl p-6 max-w-sm w-full space-y-4 border border-[#ffe0cc] shadow-xl">
             <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div className="text-center">
-              <h3 className="font-bold text-base text-[#1e1a1d]">Delete Event?</h3>
-              <p className="text-xs text-[#81737c] mt-1">
+              <h3 className="font-bold text-base text-[#1c1612]">Delete Event?</h3>
+              <p className="text-xs text-[#7c6354] mt-1">
                 Are you sure you want to delete "{event.name}" and all associated stall bookings? This action cannot be undone.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="py-2.5 px-4 bg-[#faf1f5] text-[#491546] text-xs font-bold rounded-xl border border-[#d2c2cc]"
+                className="py-2.5 px-4 bg-[#fff5ee] text-[#C2500A] text-xs font-bold rounded-xl border border-[#f5c9a8]"
               >
                 Cancel
               </button>

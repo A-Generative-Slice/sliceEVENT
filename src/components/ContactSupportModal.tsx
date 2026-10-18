@@ -41,7 +41,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
 
   const whatsappNumber = '917812891494';
   const whatsappMsg = encodeURIComponent(
-    'Hello A Generative Slice Team, I need support/assistance with The Velvet Trunk application.'
+    'Hello A Generative Slice Team, I need support/assistance with A Generative Slice application.'
   );
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`;
 
@@ -50,9 +50,9 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#ffffff] rounded-3xl border border-[#e9e0e4] shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[#ffffff] rounded-3xl border border-[#ffe0cc] shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header with A Generative Slice Company Logo */}
-        <div className="bg-gradient-to-r from-[#491546] via-[#632c5e] to-[#904277] p-5 text-white flex items-center justify-between relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#C2500A] via-[#a8400a] to-[#E8621A] p-5 text-white flex items-center justify-between relative overflow-hidden">
           <div className="flex items-center gap-3.5 z-10">
             {/* Company Logo Badge */}
             <div className="w-12 h-12 rounded-2xl bg-white p-1 shadow-md shrink-0 border border-white/30 overflow-hidden flex items-center justify-center">
@@ -71,12 +71,12 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
                 <h2 className="font-black text-base sm:text-lg tracking-tight text-white">
                   A Generative Slice
                 </h2>
-                <span className="px-2 py-0.5 rounded-full bg-[#fea0db] text-[#491546] text-[9px] font-black uppercase">
+                <span className="px-2 py-0.5 rounded-full bg-[#ffb347] text-[#C2500A] text-[9px] font-black uppercase">
                   DEVELOPER TEAM
                 </span>
               </div>
               <p className="text-xs text-[#ffd7f5] font-medium flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-[#fea0db]" />
+                <Sparkles className="w-3 h-3 text-[#ffb347]" />
                 Customer Support & Concierge Assistance
               </p>
             </div>
@@ -97,22 +97,22 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
         {/* Modal Body */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-5">
           {/* Respect & Appreciation Banner for Exhibition Organizers */}
-          <div className="bg-gradient-to-r from-[#faf1f5] via-[#fff7fa] to-[#f7e8f3] p-4 rounded-2xl border border-[#e9e0e4] space-y-2 relative">
-            <div className="flex items-center gap-2 text-[#491546]">
-              <Heart className="w-4 h-4 text-[#904277] fill-[#904277]" />
+          <div className="bg-gradient-to-r from-[#fff5ee] via-[#fffbf7] to-[#f7e8f3] p-4 rounded-2xl border border-[#ffe0cc] space-y-2 relative">
+            <div className="flex items-center gap-2 text-[#C2500A]">
+              <Heart className="w-4 h-4 text-[#E8621A] fill-[#E8621A]" />
               <h3 className="text-xs font-black uppercase tracking-wider">
                 Honoring Your Event Excellence
               </h3>
             </div>
-            <p className="text-xs text-[#4f434c] leading-relaxed font-medium">
-              At <strong className="text-[#491546]">A Generative Slice</strong>, we deeply respect and admire the vision, effort, and passion exhibition organizers bring to life. Crafting unforgettable expos, managing stall layouts, and empowering local artisans is a massive feat. We built <strong>The Velvet Trunk</strong> to streamline your operations, and we are dedicated to supporting your success every step of the way!
+            <p className="text-xs text-[#4a3b30] leading-relaxed font-medium">
+              At <strong className="text-[#C2500A]">A Generative Slice</strong>, we deeply respect and admire the vision, effort, and passion exhibition organizers bring to life. Crafting unforgettable expos, managing stall layouts, and empowering local artisans is a massive feat. We built <strong>A Generative Slice</strong> to streamline your operations, and we are dedicated to supporting your success every step of the way!
             </p>
           </div>
 
           {/* 1-Click Contact Buttons (WhatsApp & Email) */}
           <div className="space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#904277]" /> Direct 1-Click Contact
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-[#E8621A]" /> Direct 1-Click Contact
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -142,14 +142,14 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               {/* Developer Email Link */}
               <a
                 href={mailtoUrl}
-                className="p-3.5 rounded-2xl bg-[#491546] hover:bg-[#632c5e] text-white font-bold transition-all shadow-sm hover:shadow-md active:scale-98 flex items-center justify-between group"
+                className="p-3.5 rounded-2xl bg-[#C2500A] hover:bg-[#a8400a] text-white font-bold transition-all shadow-sm hover:shadow-md active:scale-98 flex items-center justify-between group"
               >
                 <div className="flex items-center gap-3 truncate">
-                  <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-[#fea0db] shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-[#ffb347] shrink-0">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div className="truncate">
-                    <span className="text-[10px] font-extrabold text-[#fea0db] uppercase block">
+                    <span className="text-[10px] font-extrabold text-[#ffb347] uppercase block">
                       Developer Email
                     </span>
                     <span className="text-xs font-extrabold text-white truncate block">
@@ -157,7 +157,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
                     </span>
                   </div>
                 </div>
-                <ExternalLink className="w-4 h-4 text-[#fea0db] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                <ExternalLink className="w-4 h-4 text-[#ffb347] shrink-0 group-hover:translate-x-0.5 transition-transform" />
               </a>
             </div>
           </div>
@@ -171,9 +171,9 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           </div>
 
           {/* Support Inquiry Form */}
-          <div className="space-y-3 pt-2 border-t border-[#f4ecef]">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-              <MessageSquare className="w-4 h-4 text-[#904277]" /> Request Custom Feature or Technical Support
+          <div className="space-y-3 pt-2 border-t border-[#fff0e6]">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+              <MessageSquare className="w-4 h-4 text-[#E8621A]" /> Request Custom Feature or Technical Support
             </h3>
 
             {ticketSent ? (
@@ -189,7 +189,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
             ) : (
               <form onSubmit={handleSendTicket} className="space-y-3">
                 <div>
-                  <label className="text-[11px] font-bold text-[#491546] block mb-1">
+                  <label className="text-[11px] font-bold text-[#C2500A] block mb-1">
                     Subject / Custom Feature Request
                   </label>
                   <input
@@ -198,12 +198,12 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
                     onChange={(e) => setTicketSubject(e.target.value)}
                     placeholder="e.g. Custom stall layout requirement or feedback"
                     required
-                    className="w-full px-3.5 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-medium text-[#1e1a1d] focus:outline-hidden focus:border-[#491546]"
+                    className="w-full px-3.5 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-medium text-[#1c1612] focus:outline-hidden focus:border-[#C2500A]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-[#491546] block mb-1">
+                  <label className="text-[11px] font-bold text-[#C2500A] block mb-1">
                     Message Details
                   </label>
                   <textarea
@@ -212,15 +212,15 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
                     onChange={(e) => setTicketMessage(e.target.value)}
                     placeholder="Describe how we can customize or enhance your exhibition management experience..."
                     required
-                    className="w-full px-3.5 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-medium text-[#1e1a1d] focus:outline-hidden focus:border-[#491546]"
+                    className="w-full px-3.5 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-medium text-[#1c1612] focus:outline-hidden focus:border-[#C2500A]"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-[#491546] to-[#632c5e] text-white font-extrabold text-xs rounded-xl shadow-md hover:shadow-lg active:scale-98 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-gradient-to-r from-[#C2500A] to-[#a8400a] text-white font-extrabold text-xs rounded-xl shadow-md hover:shadow-lg active:scale-98 transition-all flex items-center justify-center gap-2"
                 >
-                  <Send className="w-4 h-4 text-[#fea0db]" /> Send Message to A Generative Slice Team
+                  <Send className="w-4 h-4 text-[#ffb347]" /> Send Message to A Generative Slice Team
                 </button>
               </form>
             )}
@@ -228,11 +228,11 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="bg-[#faf1f5] px-6 py-3 border-t border-[#e9e0e4] flex items-center justify-between text-[11px] text-[#81737c]">
-          <span className="font-bold text-[#491546]">Powered by A Generative Slice</span>
+        <div className="bg-[#fff5ee] px-6 py-3 border-t border-[#ffe0cc] flex items-center justify-between text-[11px] text-[#7c6354]">
+          <span className="font-bold text-[#C2500A]">Powered by A Generative Slice</span>
           <button
             onClick={onClose}
-            className="font-bold text-[#491546] hover:underline"
+            className="font-bold text-[#C2500A] hover:underline"
           >
             Close Support Window
           </button>

@@ -308,7 +308,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="w-10 h-10 rounded-xl bg-[#ffffff] border border-[#e9e0e4] flex items-center justify-center text-[#491546] shadow-xs active:scale-95 transition-all"
+            className="w-10 h-10 rounded-xl bg-[#ffffff] border border-[#ffe0cc] flex items-center justify-center text-[#C2500A] shadow-xs active:scale-95 transition-all"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -316,14 +316,14 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
             <div className="flex items-center gap-1.5">
               <span
                 className={`px-2.5 py-0.5 rounded-md text-[11px] font-extrabold text-white uppercase ${
-                  isF ? 'bg-[#632c5e]' : 'bg-[#904277]'
+                  isF ? 'bg-[#a8400a]' : 'bg-[#E8621A]'
                 }`}
               >
                 {series} SERIES
               </span>
-              <h1 className="text-base font-bold text-[#491546]">{event.name}</h1>
+              <h1 className="text-base font-bold text-[#C2500A]">{event.name}</h1>
             </div>
-            <p className="text-xs text-[#81737c] mt-0.5">
+            <p className="text-xs text-[#7c6354] mt-0.5">
               {seriesBookings.length} of {limit} Stalls Allocated
             </p>
           </div>
@@ -332,7 +332,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
         <button
           onClick={openAddModal}
           className={`p-2.5 rounded-xl text-white font-bold text-xs shadow-md active:scale-95 transition-all flex items-center gap-1 ${
-            isF ? 'bg-[#491546] hover:bg-[#632c5e]' : 'bg-[#904277] hover:bg-[#7c3165]'
+            isF ? 'bg-[#C2500A] hover:bg-[#a8400a]' : 'bg-[#E8621A] hover:bg-[#9a3d0a]'
           }`}
         >
           <Plus className="w-4 h-4 stroke-[3]" /> Add Stall
@@ -340,17 +340,17 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
       </div>
 
       {/* Series Financial Summary Strip */}
-      <div className="bg-[#ffffff] rounded-2xl border border-[#e9e0e4] p-3.5 shadow-2xs grid grid-cols-3 gap-2 text-center">
+      <div className="bg-[#ffffff] rounded-2xl border border-[#ffe0cc] p-3.5 shadow-2xs grid grid-cols-3 gap-2 text-center">
         <div>
-          <span className="text-[10px] text-[#81737c] font-bold uppercase block">
+          <span className="text-[10px] text-[#7c6354] font-bold uppercase block">
             Stalls
           </span>
-          <span className="text-xs font-extrabold text-[#491546]">
+          <span className="text-xs font-extrabold text-[#C2500A]">
             {seriesBookings.length} / {limit}
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-[#81737c] font-bold uppercase block">
+          <span className="text-[10px] text-[#7c6354] font-bold uppercase block">
             Collected
           </span>
           <span className="text-xs font-extrabold text-emerald-700">
@@ -358,7 +358,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-[#81737c] font-bold uppercase block">
+          <span className="text-[10px] text-[#7c6354] font-bold uppercase block">
             Pending
           </span>
           <span className="text-xs font-extrabold text-amber-700">
@@ -370,31 +370,31 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
       {/* Search Bar & Status Filter */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between px-1">
-          <label htmlFor="search-bookings-input" className="text-[11px] font-extrabold uppercase tracking-wider text-[#491546]">
+          <label htmlFor="search-bookings-input" className="text-[11px] font-extrabold uppercase tracking-wider text-[#C2500A]">
             Filter Bookings by Exhibitor Name or Stall No.
           </label>
           {searchQuery && (
-            <span className="text-[10px] font-bold text-[#904277] bg-[#faf1f5] px-2 py-0.5 rounded-md">
+            <span className="text-[10px] font-bold text-[#E8621A] bg-[#fff5ee] px-2 py-0.5 rounded-md">
               {filteredBookings.length} of {seriesBookings.length} Found
             </span>
           )}
         </div>
 
         <div className="relative">
-          <Search className="w-4 h-4 text-[#81737c] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#7c6354] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             id="search-bookings-input"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Search by exhibitor name, stall number (e.g. ${series}-01), stall name...`}
-            className="w-full pl-10 pr-9 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-semibold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546] shadow-2xs placeholder:text-[#a599a2]"
+            className="w-full pl-10 pr-9 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] shadow-2xs placeholder:text-[#a599a2]"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#e9e0e4] text-[#491546] hover:bg-[#d2c2cc] flex items-center justify-center transition-colors"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#ffe0cc] text-[#C2500A] hover:bg-[#f5c9a8] flex items-center justify-center transition-colors"
               title="Clear search filter"
             >
               <X className="w-3.5 h-3.5" />
@@ -410,8 +410,8 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1 rounded-full font-bold whitespace-nowrap transition-all ${
                 statusFilter === st
-                  ? 'bg-[#491546] text-white shadow-xs'
-                  : 'bg-[#ffffff] text-[#81737c] border border-[#e9e0e4] hover:bg-[#faf1f5]'
+                  ? 'bg-[#C2500A] text-white shadow-xs'
+                  : 'bg-[#ffffff] text-[#7c6354] border border-[#ffe0cc] hover:bg-[#fff5ee]'
               }`}
             >
               {st}
@@ -423,8 +423,8 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
       {/* Vendor List Cards (Clicking card opens Stall Details & Payment Log Modal) */}
       <div className="flex flex-col gap-3">
         {filteredBookings.length === 0 ? (
-          <div className="bg-[#ffffff] p-8 text-center rounded-2xl border border-[#e9e0e4] text-[#81737c] space-y-3">
-            <p className="font-bold text-sm text-[#491546]">No Vendor Bookings Found</p>
+          <div className="bg-[#ffffff] p-8 text-center rounded-2xl border border-[#ffe0cc] text-[#7c6354] space-y-3">
+            <p className="font-bold text-sm text-[#C2500A]">No Vendor Bookings Found</p>
             <p className="text-xs">
               {searchQuery
                 ? `No booking matching exhibitor name or stall number "${searchQuery}" in ${series} Series.`
@@ -433,14 +433,14 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
             {searchQuery ? (
               <button
                 onClick={() => setSearchQuery('')}
-                className="px-4 py-2 bg-[#faf1f5] text-[#491546] border border-[#d2c2cc] text-xs font-bold rounded-xl active:scale-95 transition-all inline-flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#fff5ee] text-[#C2500A] border border-[#f5c9a8] text-xs font-bold rounded-xl active:scale-95 transition-all inline-flex items-center gap-1.5"
               >
                 <X className="w-4 h-4" /> Clear Search Filter
               </button>
             ) : (
               <button
                 onClick={openAddModal}
-                className="px-4 py-2 bg-[#491546] text-white text-xs font-bold rounded-xl active:scale-95 transition-all inline-flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#C2500A] text-white text-xs font-bold rounded-xl active:scale-95 transition-all inline-flex items-center gap-1.5"
               >
                 <Plus className="w-4 h-4" /> Add First Vendor
               </button>
@@ -454,24 +454,24 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                 setViewingBookingDetails(b);
                 setIsRecordPaymentOpen(false);
               }}
-              className="bg-[#ffffff] rounded-2xl border border-[#e9e0e4] p-4 shadow-2xs hover:shadow-md hover:border-[#904277]/50 transition-all space-y-3 cursor-pointer group"
+              className="bg-[#ffffff] rounded-2xl border border-[#ffe0cc] p-4 shadow-2xs hover:shadow-md hover:border-[#E8621A]/50 transition-all space-y-3 cursor-pointer group"
             >
               {/* Header with Stall Number and Payment Status */}
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2.5 py-0.5 rounded-md bg-[#491546] text-white font-black text-xs tracking-wider">
+                    <span className="px-2.5 py-0.5 rounded-md bg-[#C2500A] text-white font-black text-xs tracking-wider">
                       {b.stallNumber}
                     </span>
-                    <span className="text-[11px] font-semibold text-[#81737c] bg-[#faf1f5] px-2 py-0.5 rounded-md">
+                    <span className="text-[11px] font-semibold text-[#7c6354] bg-[#fff5ee] px-2 py-0.5 rounded-md">
                       {b.stallCategory}
                     </span>
                   </div>
-                  <h3 className="font-extrabold text-base text-[#1e1a1d] leading-tight group-hover:text-[#491546] transition-colors">
+                  <h3 className="font-extrabold text-base text-[#1c1612] leading-tight group-hover:text-[#C2500A] transition-colors">
                     {b.stallName}
                   </h3>
-                  <p className="text-xs text-[#4f434c] font-medium flex items-center gap-1 mt-0.5">
-                    <User className="w-3.5 h-3.5 text-[#904277]" /> {b.exhibitorName}
+                  <p className="text-xs text-[#4a3b30] font-medium flex items-center gap-1 mt-0.5">
+                    <User className="w-3.5 h-3.5 text-[#E8621A]" /> {b.exhibitorName}
                   </p>
                 </div>
 
@@ -493,24 +493,24 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               </div>
 
               {/* Contact & Booking Date */}
-              <div className="grid grid-cols-2 gap-2 text-xs text-[#4f434c] bg-[#faf1f5]/70 p-2.5 rounded-xl">
-                <div className="flex items-center gap-1.5 font-bold text-[#491546]">
-                  <Phone className="w-3.5 h-3.5 text-[#904277]" />
+              <div className="grid grid-cols-2 gap-2 text-xs text-[#4a3b30] bg-[#fff5ee]/70 p-2.5 rounded-xl">
+                <div className="flex items-center gap-1.5 font-bold text-[#C2500A]">
+                  <Phone className="w-3.5 h-3.5 text-[#E8621A]" />
                   <span>{b.mobileNumber}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[#81737c] justify-end">
-                  <Calendar className="w-3.5 h-3.5 text-[#904277]" />
+                <div className="flex items-center gap-1.5 text-[#7c6354] justify-end">
+                  <Calendar className="w-3.5 h-3.5 text-[#E8621A]" />
                   <span>{formatDatePretty(b.bookingDate)}</span>
                 </div>
               </div>
 
               {/* Financial Rent Summary */}
-              <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1 border-t border-[#f4ecef]">
+              <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1 border-t border-[#fff0e6]">
                 <div>
-                  <span className="text-[10px] text-[#81737c] font-bold uppercase block">
+                  <span className="text-[10px] text-[#7c6354] font-bold uppercase block">
                     Stall Rent
                   </span>
-                  <span className="font-extrabold text-[#491546]">
+                  <span className="font-extrabold text-[#C2500A]">
                     ₹{b.stallRent.toLocaleString()}
                   </span>
                 </div>
@@ -533,12 +533,12 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               </div>
 
               {/* Tap to View Details Footer Badge */}
-              <div className="flex items-center justify-between pt-1 border-t border-[#f4ecef] text-[11px] text-[#904277] font-extrabold">
-                <div className="flex items-center gap-1 text-[#81737c] font-medium">
-                  <CreditCard className="w-3.5 h-3.5 text-[#904277]" />
+              <div className="flex items-center justify-between pt-1 border-t border-[#fff0e6] text-[11px] text-[#E8621A] font-extrabold">
+                <div className="flex items-center gap-1 text-[#7c6354] font-medium">
+                  <CreditCard className="w-3.5 h-3.5 text-[#E8621A]" />
                   <span>{b.paymentMode}</span>
                 </div>
-                <div className="flex items-center gap-1 text-[#491546] font-bold group-hover:translate-x-0.5 transition-transform">
+                <div className="flex items-center gap-1 text-[#C2500A] font-bold group-hover:translate-x-0.5 transition-transform">
                   <span>View Details & Log Payment</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </div>
@@ -551,18 +551,18 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
       {/* DETAILED STALL INFORMATION & PAYMENT LOG MODAL */}
       {viewingBookingDetails && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3">
-          <div className="bg-[#ffffff] rounded-2xl max-w-md w-full max-h-[92vh] flex flex-col border border-[#e9e0e4] shadow-2xl overflow-hidden animate-scaleUp">
+          <div className="bg-[#ffffff] rounded-2xl max-w-md w-full max-h-[92vh] flex flex-col border border-[#ffe0cc] shadow-2xl overflow-hidden animate-scaleUp">
             {/* Modal Header */}
-            <div className="p-4 bg-[#491546] text-white flex items-center justify-between">
+            <div className="p-4 bg-[#C2500A] text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-md bg-[#fea0db] text-[#491546] font-black text-xs uppercase tracking-wider">
+                <span className="px-2.5 py-1 rounded-md bg-[#ffb347] text-[#C2500A] font-black text-xs uppercase tracking-wider">
                   STALL {viewingBookingDetails.stallNumber}
                 </span>
                 <div>
                   <h3 className="font-extrabold text-sm text-white leading-tight">
                     {viewingBookingDetails.stallName}
                   </h3>
-                  <p className="text-[11px] text-[#fea0db]">{viewingBookingDetails.exhibitorName}</p>
+                  <p className="text-[11px] text-[#ffb347]">{viewingBookingDetails.exhibitorName}</p>
                 </div>
               </div>
               <button
@@ -576,30 +576,30 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
             {/* Modal Body */}
             <div className="p-4 overflow-y-auto flex-1 space-y-4 text-xs">
               {/* Exhibitor Details Card */}
-              <div className="bg-[#faf1f5] rounded-xl p-3.5 space-y-2 border border-[#d2c2cc]/40">
-                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-[#904277]" /> Exhibitor Contact Info
+              <div className="bg-[#fff5ee] rounded-xl p-3.5 space-y-2 border border-[#f5c9a8]/40">
+                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-[#E8621A]" /> Exhibitor Contact Info
                 </h4>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="text-[10px] text-[#81737c] block">Category</span>
-                    <span className="font-extrabold text-[#1e1a1d]">{viewingBookingDetails.stallCategory}</span>
+                    <span className="text-[10px] text-[#7c6354] block">Category</span>
+                    <span className="font-extrabold text-[#1c1612]">{viewingBookingDetails.stallCategory}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#81737c] block">Booking Date</span>
-                    <span className="font-extrabold text-[#1e1a1d]">{formatDatePretty(viewingBookingDetails.bookingDate)}</span>
+                    <span className="text-[10px] text-[#7c6354] block">Booking Date</span>
+                    <span className="font-extrabold text-[#1c1612]">{formatDatePretty(viewingBookingDetails.bookingDate)}</span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#d2c2cc]/40 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 font-bold text-[#491546]">
-                    <Phone className="w-3.5 h-3.5 text-[#904277]" />
+                <div className="pt-2 border-t border-[#f5c9a8]/40 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-bold text-[#C2500A]">
+                    <Phone className="w-3.5 h-3.5 text-[#E8621A]" />
                     <span>{viewingBookingDetails.mobileNumber}</span>
                   </div>
                   <a
                     href={`tel:${viewingBookingDetails.mobileNumber}`}
-                    className="px-3 py-1 bg-[#491546] text-white text-[11px] font-bold rounded-lg hover:bg-[#632c5e] active:scale-95 transition-all"
+                    className="px-3 py-1 bg-[#C2500A] text-white text-[11px] font-bold rounded-lg hover:bg-[#a8400a] active:scale-95 transition-all"
                   >
                     Call Exhibitor
                   </a>
@@ -607,10 +607,10 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               </div>
 
               {/* Payment Breakdown & Add Payment Log Box */}
-              <div className="bg-[#ffffff] rounded-xl p-3.5 space-y-3 border border-[#e9e0e4] shadow-2xs">
+              <div className="bg-[#ffffff] rounded-xl p-3.5 space-y-3 border border-[#ffe0cc] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#491546] flex items-center gap-1.5">
-                    <Receipt className="w-3.5 h-3.5 text-[#904277]" /> Payment Breakdown
+                  <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+                    <Receipt className="w-3.5 h-3.5 text-[#E8621A]" /> Payment Breakdown
                   </h4>
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
@@ -626,21 +626,21 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between py-1 border-b border-[#f4ecef]">
-                    <span className="text-[#81737c] font-medium">Total Agreed Rent:</span>
-                    <span className="font-extrabold text-[#491546] text-sm">
+                  <div className="flex items-center justify-between py-1 border-b border-[#fff0e6]">
+                    <span className="text-[#7c6354] font-medium">Total Agreed Rent:</span>
+                    <span className="font-extrabold text-[#C2500A] text-sm">
                       ₹{viewingBookingDetails.stallRent.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between py-1 border-b border-[#f4ecef]">
+                  <div className="flex items-center justify-between py-1 border-b border-[#fff0e6]">
                     <span className="text-emerald-800 font-medium">Total Amount Collected:</span>
                     <span className="font-extrabold text-emerald-700 text-sm">
                       ₹{viewingBookingDetails.stallAdvance.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between py-1 border-b border-[#f4ecef]">
+                  <div className="flex items-center justify-between py-1 border-b border-[#fff0e6]">
                     <span className="text-amber-800 font-medium">Remaining Pending Balance:</span>
                     <span className="font-extrabold text-amber-700 text-sm">
                       ₹{viewingBookingDetails.remainingBalance.toLocaleString()}
@@ -757,20 +757,20 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                 )}
 
                 {/* Audit Log Timeline */}
-                <div className="p-3 bg-[#faf1f5] rounded-xl border border-[#e9e0e4] text-[11px] text-[#4f434c] space-y-2 mt-2">
-                  <div className="flex items-center gap-1.5 font-extrabold text-[#491546] border-b border-[#e9e0e4] pb-1">
-                    <History className="w-3.5 h-3.5 text-[#904277]" />
+                <div className="p-3 bg-[#fff5ee] rounded-xl border border-[#ffe0cc] text-[11px] text-[#4a3b30] space-y-2 mt-2">
+                  <div className="flex items-center gap-1.5 font-extrabold text-[#C2500A] border-b border-[#ffe0cc] pb-1">
+                    <History className="w-3.5 h-3.5 text-[#E8621A]" />
                     <span>Payment Audit Trail & Transaction Logs</span>
                   </div>
 
                   {/* Initial Booking Log */}
                   <div className="flex items-start gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#491546] mt-1 shrink-0"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C2500A] mt-1 shrink-0"></span>
                     <div>
-                      <p className="font-bold text-[#1e1a1d]">
+                      <p className="font-bold text-[#1c1612]">
                         Initial Deposit Recorded: <span className="text-emerald-700">₹{(viewingBookingDetails.paymentLogs && viewingBookingDetails.paymentLogs.length > 0 ? (viewingBookingDetails.stallAdvance - viewingBookingDetails.paymentLogs.reduce((acc, l) => acc + l.amount, 0)) : viewingBookingDetails.stallAdvance).toLocaleString()}</span>
                       </p>
-                      <p className="text-[10px] text-[#81737c]">
+                      <p className="text-[10px] text-[#7c6354]">
                         {formatDatePretty(viewingBookingDetails.bookingDate)} via {viewingBookingDetails.paymentMode}
                       </p>
                     </div>
@@ -778,13 +778,13 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
 
                   {/* Additional Recorded Payment Logs */}
                   {viewingBookingDetails.paymentLogs && viewingBookingDetails.paymentLogs.map((tx, idx) => (
-                    <div key={tx.id || idx} className="flex items-start gap-1.5 pt-1 border-t border-[#e9e0e4]/60">
+                    <div key={tx.id || idx} className="flex items-start gap-1.5 pt-1 border-t border-[#ffe0cc]/60">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1 shrink-0"></span>
                       <div>
                         <p className="font-bold text-emerald-800">
                           Payment Received: <span className="font-black">+₹{tx.amount.toLocaleString()}</span> ({tx.paymentMode})
                         </p>
-                        <p className="text-[10px] text-[#81737c]">
+                        <p className="text-[10px] text-[#7c6354]">
                           Recorded on {formatDatePretty(tx.date)} {tx.note ? `• Ref: ${tx.note}` : ''}
                         </p>
                       </div>
@@ -794,24 +794,24 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               </div>
 
               {viewingBookingDetails.notes && (
-                <div className="p-3 bg-[#fff7fa] rounded-xl border border-[#e9e0e4] space-y-1">
-                  <span className="text-[10px] font-extrabold uppercase text-[#81737c]">Internal Notes:</span>
-                  <p className="text-xs text-[#1e1a1d] italic">{viewingBookingDetails.notes}</p>
+                <div className="p-3 bg-[#fffbf7] rounded-xl border border-[#ffe0cc] space-y-1">
+                  <span className="text-[10px] font-extrabold uppercase text-[#7c6354]">Internal Notes:</span>
+                  <p className="text-xs text-[#1c1612] italic">{viewingBookingDetails.notes}</p>
                 </div>
               )}
             </div>
 
             {/* Modal Actions Footer: Edit & Delete Buttons Inside */}
-            <div className="p-3 bg-[#fff7fa] border-t border-[#e9e0e4] grid grid-cols-2 gap-2">
+            <div className="p-3 bg-[#fffbf7] border-t border-[#ffe0cc] grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
                   const target = viewingBookingDetails;
                   setViewingBookingDetails(null);
                   openEditModal(target);
                 }}
-                className="py-2.5 px-3 rounded-xl bg-[#faf1f5] border border-[#d2c2cc] text-[#491546] hover:bg-[#e9e0e4] active:scale-95 transition-all flex items-center justify-center gap-1.5 text-xs font-bold shadow-2xs"
+                className="py-2.5 px-3 rounded-xl bg-[#fff5ee] border border-[#f5c9a8] text-[#C2500A] hover:bg-[#ffe0cc] active:scale-95 transition-all flex items-center justify-center gap-1.5 text-xs font-bold shadow-2xs"
               >
-                <Edit2 className="w-4 h-4 text-[#904277]" /> Edit Booking
+                <Edit2 className="w-4 h-4 text-[#E8621A]" /> Edit Booking
               </button>
 
               <button
@@ -832,20 +832,20 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
       {/* ADD / EDIT VENDOR FORM MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3">
-          <div className="bg-[#ffffff] rounded-2xl max-w-md w-full max-h-[92vh] flex flex-col border border-[#e9e0e4] shadow-2xl overflow-hidden">
+          <div className="bg-[#ffffff] rounded-2xl max-w-md w-full max-h-[92vh] flex flex-col border border-[#ffe0cc] shadow-2xl overflow-hidden">
             {/* Modal Header */}
-            <div className="p-4 bg-[#fff7fa] border-b border-[#e9e0e4] flex items-center justify-between">
+            <div className="p-4 bg-[#fffbf7] border-b border-[#ffe0cc] flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-base text-[#491546]">
+                <h3 className="font-bold text-base text-[#C2500A]">
                   {editingBooking ? 'Edit Vendor Details' : `Add New ${series} Series Vendor`}
                 </h3>
-                <p className="text-xs text-[#81737c]">
+                <p className="text-xs text-[#7c6354]">
                   Stall allocation and rental payment details
                 </p>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#e9e0e4] text-[#491546] flex items-center justify-center font-bold hover:bg-[#d2c2cc]"
+                className="w-8 h-8 rounded-full bg-[#ffe0cc] text-[#C2500A] flex items-center justify-center font-bold hover:bg-[#f5c9a8]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -864,7 +864,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
 
               {/* 1. Exhibitor Name (Clean Label) */}
               <div className="space-y-1">
-                <label className="font-bold uppercase tracking-wider text-[#491546]">
+                <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                   Exhibitor Name *
                 </label>
                 <input
@@ -873,13 +873,13 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                   onChange={(e) => setExhibitorName(e.target.value)}
                   placeholder="e.g. John Doe"
                   required
-                  className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-semibold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546]"
+                  className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A]"
                 />
               </div>
 
               {/* 2. Stall Name (Clean Label) */}
               <div className="space-y-1">
-                <label className="font-bold uppercase tracking-wider text-[#491546]">
+                <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                   Stall Name *
                 </label>
                 <input
@@ -888,14 +888,14 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                   onChange={(e) => setStallName(e.target.value)}
                   placeholder="e.g. Classic Threads"
                   required
-                  className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-semibold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546]"
+                  className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A]"
                 />
               </div>
 
               {/* 3. Mobile Number & Stall Number (Numeric-Only with {series}- Prefix) */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="space-y-1">
-                  <label className="font-bold uppercase tracking-wider text-[#491546]">
+                  <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                     Mobile Number *
                   </label>
                   <input
@@ -905,16 +905,16 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                     onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
                     placeholder="e.g. 9876543210"
                     required
-                    className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-semibold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546]"
+                    className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A]"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold uppercase tracking-wider text-[#491546]">
+                  <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                     Stall Number *
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-3 font-extrabold text-[#491546] text-xs">
+                    <span className="absolute left-3 font-extrabold text-[#C2500A] text-xs">
                       {series}-
                     </span>
                     <input
@@ -923,7 +923,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                       onChange={(e) => setStallNumber(e.target.value.replace(/\D/g, ''))}
                       placeholder="01"
                       required
-                      className="w-full pl-8 pr-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-black text-[#491546] focus:outline-hidden focus:border-[#491546]"
+                      className="w-full pl-8 pr-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-black text-[#C2500A] focus:outline-hidden focus:border-[#C2500A]"
                     />
                   </div>
                 </div>
@@ -932,7 +932,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               {/* 4. Booking Date & Stall Category */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="space-y-1">
-                  <label className="font-bold uppercase tracking-wider text-[#491546]">
+                  <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                     Booking Date *
                   </label>
                   <input
@@ -940,18 +940,18 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                     value={bookingDate}
                     onChange={(e) => setBookingDate(e.target.value)}
                     required
-                    className="w-full px-3 py-2 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-semibold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546]"
+                    className="w-full px-3 py-2 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A]"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold uppercase tracking-wider text-[#491546]">
+                  <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                     Stall Category
                   </label>
                   <select
                     value={stallCategory}
                     onChange={(e) => setStallCategory(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-semibold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546]"
+                    className="w-full px-3 py-2 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A]"
                   >
                     {STALL_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -965,7 +965,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               {/* 5. Stall Rent & Stall Cost Advance (Clean Labels & Empty Fill Boxes) */}
               <div className="grid grid-cols-2 gap-2.5 pt-1">
                 <div className="space-y-1">
-                  <label className="font-bold uppercase tracking-wider text-[#491546]">
+                  <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                     Stall Rent (₹) *
                   </label>
                   <input
@@ -977,7 +977,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                     }
                     placeholder="Enter rent amount"
                     required
-                    className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#d2c2cc] rounded-xl text-xs font-bold text-[#1e1a1d] focus:outline-hidden focus:border-[#491546]"
+                    className="w-full px-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-bold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A]"
                   />
                 </div>
 
@@ -999,18 +999,18 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               </div>
 
               {/* AUTOMATICALLY CALCULATED REMAINING BALANCE & CALCULATED STATUS */}
-              <div className="bg-[#faf1f5] border border-[#d2c2cc] rounded-2xl p-3.5 space-y-2">
+              <div className="bg-[#fff5ee] border border-[#f5c9a8] rounded-2xl p-3.5 space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#81737c] uppercase">
+                  <span className="font-bold text-[#7c6354] uppercase">
                     Remaining Balance:
                   </span>
-                  <span className="font-black text-sm text-[#491546]">
+                  <span className="font-black text-sm text-[#C2500A]">
                     ₹{calculatedRemaining.toLocaleString()}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#81737c] uppercase">
+                  <span className="font-bold text-[#7c6354] uppercase">
                     Calculated Status:
                   </span>
                   <span
@@ -1029,7 +1029,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
 
               {/* 6. Payment Mode */}
               <div className="space-y-1">
-                <label className="font-bold uppercase tracking-wider text-[#491546]">
+                <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                   Payment Mode *
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -1040,8 +1040,8 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                       onClick={() => setPaymentMode(mode)}
                       className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
                         paymentMode === mode
-                          ? 'bg-[#491546] text-white border-[#491546]'
-                          : 'bg-[#ffffff] text-[#4f434c] border-[#d2c2cc] hover:bg-[#faf1f5]'
+                          ? 'bg-[#C2500A] text-white border-[#C2500A]'
+                          : 'bg-[#ffffff] text-[#4a3b30] border-[#f5c9a8] hover:bg-[#fff5ee]'
                       }`}
                     >
                       {mode}
@@ -1053,7 +1053,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
               {/* Submit Button */}
               <button
                 type="submit"
-                className="mt-4 w-full py-3 bg-gradient-to-r from-[#491546] to-[#632c5e] text-white font-bold text-xs rounded-xl shadow-md active:scale-98 transition-all"
+                className="mt-4 w-full py-3 bg-gradient-to-r from-[#C2500A] to-[#a8400a] text-white font-bold text-xs rounded-xl shadow-md active:scale-98 transition-all"
               >
                 {editingBooking ? 'Update Vendor Booking' : 'Save Vendor Stall Booking'}
               </button>

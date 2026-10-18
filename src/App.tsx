@@ -347,7 +347,7 @@ export default function App() {
   // Export Data JSON
   const handleExportData = () => {
     const dataObj = {
-      app: 'The Velvet Trunk',
+      app: 'A Generative Slice',
       version: '2.0',
       exportedAt: new Date().toISOString(),
       events,
@@ -414,7 +414,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fff7fa] text-[#1e1a1d] font-['Manrope',sans-serif]">
+    <div className="min-h-screen bg-[#fffbf7] text-[#1c1612] font-['Manrope',sans-serif]">
       {/* Navigation Header (Desktop Navbar & Mobile Bottom Bar) */}
       <Navigation
         currentTab={getNavTabFromScreen(currentScreen)}
