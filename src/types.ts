@@ -1,4 +1,4 @@
-export type StallSeries = 'F' | 'S';
+export type StallSeries = string;
 
 export type PaymentMode = 'UPI / QR Code' | 'Cash' | 'Bank Transfer' | 'Card';
 

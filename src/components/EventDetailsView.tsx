@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { EventItem, VendorBooking } from '../types';
-import { calculateEventDashboardStats, formatDateRange } from '../lib/storage';
+import { EventItem, VendorBooking, StallSeriesConfig } from '../types';
+import { calculateEventDashboardStats, formatDateRange, getStallPrefix } from '../lib/storage';
 import {
   generateVendorBlueprintPDF,
   generateOwnerReportPDF,
@@ -34,8 +34,9 @@ import {
 interface EventDetailsViewProps {
   event: EventItem;
   bookings: VendorBooking[];
-  onOpenFSeries: () => void;
-  onOpenSSeries: () => void;
+  onOpenSeries: (config: StallSeriesConfig) => void;
+  onOpenFSeries?: () => void;
+  onOpenSSeries?: () => void;
   onEditEvent: () => void;
   onDeleteEvent: () => void;
   onToggleComplete: () => void;
@@ -184,6 +185,7 @@ const TouchZoomableImageViewer: React.FC<TouchZoomableImageViewerProps> = ({
 export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
   event,
   bookings,
+  onOpenSeries,
   onOpenFSeries,
   onOpenSSeries,
   onEditEvent,
@@ -199,6 +201,15 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
   const [copySuccessMsg, setCopySuccessMsg] = useState('');
 
   const stats = calculateEventDashboardStats(event, bookings);
+
+  // Dynamic stall categories (fallback to legacy F / S if none exist)
+  const seriesConfigs: StallSeriesConfig[] =
+    event.stallSeriesConfigs && event.stallSeriesConfigs.length > 0
+      ? event.stallSeriesConfigs
+      : [
+          { id: 'F', name: 'F Series', limit: event.fSeriesLimit || 100 },
+          { id: 'S', name: 'S Series', limit: event.sSeriesLimit || 20 },
+        ];
 
   const handleExportVendorPDF = async () => {
     try {
@@ -329,7 +340,11 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
 
         {event.mapLocation && (
           <a
-            href={event.mapLocation}
+            href={
+              event.mapLocation.startsWith('http://') || event.mapLocation.startsWith('https://')
+                ? event.mapLocation
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.mapLocation)}`
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="mt-1 inline-flex items-center gap-1.5 text-xs font-bold text-[#C2500A] hover:underline"
@@ -382,60 +397,88 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
         </div>
       </div>
 
-      {/* TWO BOXES AT TOP: F SERIES AND S SERIES */}
+      {/* DYNAMIC STALL CATEGORY / ZONE CARDS */}
       <div className="space-y-2">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-[#C2500A] px-1 flex items-center gap-1.5">
-          <Layers className="w-4 h-4 text-[#E8621A]" /> Manage Stall Series
-        </h2>
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#C2500A] flex items-center gap-1.5">
+            <Layers className="w-4 h-4 text-[#E8621A]" /> Manage Stall Categories ({seriesConfigs.length})
+          </h2>
+          <span className="text-[11px] text-[#7c6354] font-semibold">
+            Click to allocate stalls & manage vendors
+          </span>
+        </div>
 
-        <div className="grid grid-cols-2 gap-3.5">
-          {/* F Series Box */}
-          <button
-            onClick={onOpenFSeries}
-            className="flex flex-col gap-2 p-4 rounded-2xl bg-gradient-to-br from-[#C2500A] to-[#a8400a] text-white shadow-md hover:shadow-lg active:scale-95 transition-all text-left relative overflow-hidden group"
-          >
-            <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-md bg-[#dc97d0] text-[#C2500A] text-[10px] font-extrabold uppercase">
-                F SERIES
-              </span>
-            </div>
+        <div
+          className={`grid gap-3.5 ${
+            seriesConfigs.length === 1
+              ? 'grid-cols-1'
+              : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+          }`}
+        >
+          {seriesConfigs.map((cfg, idx) => {
+            const stat = stats.seriesStats.find((s) => s.name === cfg.name) || {
+              name: cfg.name,
+              limit: cfg.limit,
+              booked: 0,
+              available: cfg.limit,
+            };
+            const prefix = getStallPrefix(cfg.name);
+            const isFull = stat.available <= 0;
 
-            <div>
-              <span className="text-xl font-extrabold block text-white">
-                {stats.fBooked}{' '}
-                <span className="text-xs font-normal text-[#f7b0eb]">
-                  / {stats.fLimit} Booked
-                </span>
-              </span>
-              <span className="text-[11px] text-[#dc97d0] font-medium mt-0.5 block">
-                Manage F Vendors →
-              </span>
-            </div>
-          </button>
+            const gradients = [
+              'from-[#C2500A] to-[#8f3603]',
+              'from-[#E8621A] to-[#aa430c]',
+              'from-[#9c3d05] to-[#6e2902]',
+              'from-[#d95c14] to-[#9c3e07]',
+            ];
+            const bgGrad = gradients[idx % gradients.length];
 
-          {/* S Series Box */}
-          <button
-            onClick={onOpenSSeries}
-            className="flex flex-col gap-2 p-4 rounded-2xl bg-gradient-to-br from-[#E8621A] to-[#9a3d0a] text-white shadow-md hover:shadow-lg active:scale-95 transition-all text-left relative overflow-hidden group"
-          >
-            <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-md bg-[#ffb347] text-[#C2500A] text-[10px] font-extrabold uppercase">
-                S SERIES
-              </span>
-            </div>
+            const handleCardClick = () => {
+              if (onOpenSeries) {
+                onOpenSeries(cfg);
+              } else if (cfg.id === 'F' && onOpenFSeries) {
+                onOpenFSeries();
+              } else if (cfg.id === 'S' && onOpenSSeries) {
+                onOpenSSeries();
+              }
+            };
 
-            <div>
-              <span className="text-xl font-extrabold block text-white">
-                {stats.sBooked}{' '}
-                <span className="text-xs font-normal text-[#ffd8ec]">
-                  / {stats.sLimit} Booked
-                </span>
-              </span>
-              <span className="text-[11px] text-[#ffb347] font-medium mt-0.5 block">
-                Manage S Vendors →
-              </span>
-            </div>
-          </button>
+            return (
+              <button
+                key={cfg.id || idx}
+                onClick={handleCardClick}
+                className={`flex flex-col justify-between gap-3 p-4 rounded-2xl bg-gradient-to-br ${bgGrad} text-white shadow-md hover:shadow-lg active:scale-95 transition-all text-left relative overflow-hidden group`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="px-2.5 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-white text-[11px] font-extrabold uppercase tracking-wide truncate">
+                    {cfg.name} ({prefix})
+                  </span>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      isFull ? 'bg-red-400 text-white' : 'bg-emerald-400/90 text-emerald-950'
+                    }`}
+                  >
+                    {isFull ? 'SOLD OUT' : `${stat.available} VACANT`}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-2xl font-black block text-white tracking-tight">
+                    {stat.booked}{' '}
+                    <span className="text-xs font-semibold text-white/80">
+                      / {cfg.limit} Booked
+                    </span>
+                  </span>
+                  <span className="text-[11px] text-white/90 font-medium mt-1 flex items-center justify-between">
+                    <span>Manage {prefix} Stalls →</span>
+                    <span className="text-[10px] text-white/70">
+                      Prefix: {prefix}-01..{String(cfg.limit).padStart(2, '0')}
+                    </span>
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 

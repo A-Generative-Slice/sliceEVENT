@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { EventItem, VendorBooking } from '../types';
-import { calculateEventDashboardStats, formatDateRange } from './storage';
+import { calculateEventDashboardStats, formatDateRange, getStallPrefix } from './storage';
+export { getStallPrefix } from './storage';
 
 export interface LoadedImageInfo {
   dataUrl: string;
@@ -55,6 +56,30 @@ export const loadImageDataUrl = (url: string): Promise<LoadedImageInfo> => {
   });
 };
 
+// Helper to resolve the stall category/zone name for any given booking
+export function getBookingCategoryName(event: EventItem, booking: VendorBooking): string {
+  const categories =
+    event.stallSeriesConfigs && event.stallSeriesConfigs.length > 0
+      ? event.stallSeriesConfigs
+      : [
+          { id: 'F', name: 'F Series', limit: event.fSeriesLimit || 100 },
+          { id: 'S', name: 'S Series', limit: event.sSeriesLimit || 20 },
+        ];
+
+  for (const cat of categories) {
+    const prefix = getStallPrefix(cat.name);
+    if (
+      booking.series === cat.id ||
+      booking.series === cat.name ||
+      booking.stallCategory === cat.name ||
+      (booking.stallNumber && booking.stallNumber.toUpperCase().startsWith(`${prefix}-`))
+    ) {
+      return cat.name;
+    }
+  }
+  return booking.series || 'General';
+}
+
 // 1-Click Formatted Text Generator for WhatsApp / Messages with Exact Stall Numbers
 export const formatStallAvailabilityText = (
   event: EventItem,
@@ -63,54 +88,61 @@ export const formatStallAvailabilityText = (
   const stats = calculateEventDashboardStats(event, bookings);
   const eventBookings = bookings.filter((b) => b.eventId === event.id);
 
-  // F-Series breakdown
-  const fBookings = eventBookings.filter((b) => b.series === 'F');
-  const fBookedMap = new Map<string, string>(); // stallNumber -> exhibitor/stall name
-  fBookings.forEach((b) => {
-    const key = b.stallNumber.trim().toUpperCase();
-    fBookedMap.set(key, `${b.exhibitorName}${b.stallName ? ` - ${b.stallName}` : ''}`);
-  });
-
-  const fVacant: string[] = [];
-  const fBooked: string[] = [];
-  for (let i = 1; i <= event.fSeriesLimit; i++) {
-    const numPadded = `F-${String(i).padStart(2, '0')}`;
-    const numUnpadded = `F-${i}`;
-    if (fBookedMap.has(numPadded)) {
-      fBooked.push(`${numPadded} (${fBookedMap.get(numPadded)})`);
-    } else if (fBookedMap.has(numUnpadded)) {
-      fBooked.push(`${numUnpadded} (${fBookedMap.get(numUnpadded)})`);
-    } else {
-      fVacant.push(numPadded);
-    }
-  }
-
-  // S-Series breakdown
-  const sBookings = eventBookings.filter((b) => b.series === 'S');
-  const sBookedMap = new Map<string, string>(); // stallNumber -> exhibitor/stall name
-  sBookings.forEach((b) => {
-    const key = b.stallNumber.trim().toUpperCase();
-    sBookedMap.set(key, `${b.exhibitorName}${b.stallName ? ` - ${b.stallName}` : ''}`);
-  });
-
-  const sVacant: string[] = [];
-  const sBooked: string[] = [];
-  for (let i = 1; i <= event.sSeriesLimit; i++) {
-    const numPadded = `S-${String(i).padStart(2, '0')}`;
-    const numUnpadded = `S-${i}`;
-    if (sBookedMap.has(numPadded)) {
-      sBooked.push(`${numPadded} (${sBookedMap.get(numPadded)})`);
-    } else if (sBookedMap.has(numUnpadded)) {
-      sBooked.push(`${numUnpadded} (${sBookedMap.get(numUnpadded)})`);
-    } else {
-      sVacant.push(numPadded);
-    }
-  }
-
   const formatList = (stalls: string[]) => {
     if (stalls.length === 0) return 'None';
     return stalls.join(', ');
   };
+
+  // Determine stall categories (dynamic or legacy fallback)
+  const categories =
+    event.stallSeriesConfigs && event.stallSeriesConfigs.length > 0
+      ? event.stallSeriesConfigs
+      : [
+          { id: 'F', name: 'F-Series (Front Pavilion)', limit: event.fSeriesLimit || 100 },
+          { id: 'S', name: 'S-Series (VIP Select)', limit: event.sSeriesLimit || 20 },
+        ];
+
+  // Build per-category availability sections
+  const categorySections = categories.map((cat) => {
+    const prefix = getStallPrefix(cat.name);
+
+    // Bookings that belong to this category
+    const catBookings = eventBookings.filter(
+      (b) =>
+        b.series === cat.id ||
+        b.series === cat.name ||
+        b.stallCategory === cat.name ||
+        (b.stallNumber && b.stallNumber.toUpperCase().startsWith(`${prefix}-`))
+    );
+
+    const bookedMap = new Map<string, string>();
+    catBookings.forEach((b) => {
+      const key = b.stallNumber.trim().toUpperCase();
+      bookedMap.set(key, `${b.exhibitorName}${b.stallName ? ` - ${b.stallName}` : ''}`);
+    });
+
+    const vacant: string[] = [];
+    const booked: string[] = [];
+
+    for (let i = 1; i <= cat.limit; i++) {
+      const numPadded = `${prefix}-${String(i).padStart(2, '0')}`;
+      const numUnpadded = `${prefix}-${i}`;
+      if (bookedMap.has(numPadded)) {
+        booked.push(`${numPadded} (${bookedMap.get(numPadded)})`);
+      } else if (bookedMap.has(numUnpadded)) {
+        booked.push(`${numUnpadded} (${bookedMap.get(numUnpadded)})`);
+      } else {
+        vacant.push(numPadded);
+      }
+    }
+
+    return `----------------------------------------
+🏷️ ${cat.name.toUpperCase()}:
+• Capacity: ${cat.limit} Stalls (${catBookings.length} Booked | ${Math.max(0, cat.limit - catBookings.length)} Vacant)
+🟢 VACANT STALLS AVAILABLE:
+${formatList(vacant)}
+${booked.length > 0 ? `\n🔴 ALREADY BOOKED:\n${formatList(booked)}` : ''}`;
+  });
 
   return `✨ SLICEEVENT - EXHIBITION STALL AVAILABILITY UPDATE ✨
 
@@ -125,19 +157,7 @@ export const formatStallAvailabilityText = (
 • Stalls Booked: ${stats.stallsBooked} Stalls
 🟢 REMAINING AVAILABLE STALLS: ${stats.stallsAvailable} STALLS
 
-----------------------------------------
-🏷️ F-SERIES (FRONT PAVILION):
-• Capacity: ${event.fSeriesLimit} Stalls (${fBooked.length} Booked | ${fVacant.length} Vacant)
-🟢 VACANT STALLS AVAILABLE:
-${formatList(fVacant)}
-${fBooked.length > 0 ? `\n🔴 ALREADY BOOKED:\n${formatList(fBooked)}` : ''}
-
-----------------------------------------
-🏷️ S-SERIES (VIP SELECT):
-• Capacity: ${event.sSeriesLimit} Stalls (${sBooked.length} Booked | ${sVacant.length} Vacant)
-🟢 VACANT STALLS AVAILABLE:
-${formatList(sVacant)}
-${sBooked.length > 0 ? `\n🔴 ALREADY BOOKED:\n${formatList(sBooked)}` : ''}
+${categorySections.join('\n\n')}
 
 ----------------------------------------
 🗺️ Match these stall numbers directly with the attached Layout Blueprint Floor Plan!
@@ -316,19 +336,20 @@ export const generateVendorBlueprintPDF = async (
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.rect(14, y, 182, 7.5, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(7.5);
+    doc.setFontSize(7.2);
     doc.setFont('helvetica', 'bold');
-    doc.text('Stall No', 18, y + 5);
-    doc.text('Exhibitor / Stall Name', 45, y + 5);
-    doc.text('Category', 125, y + 5);
-    doc.text('Status', 170, y + 5);
+    doc.text('Stall No', 16, y + 5);
+    doc.text('Zone / Category', 36, y + 5);
+    doc.text('Exhibitor / Stall Name', 78, y + 5);
+    doc.text('Trade Type', 138, y + 5);
+    doc.text('Status', 174, y + 5);
     y += 7.5;
   };
 
   drawVendorTableHeader();
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
+  doc.setFontSize(7.2);
 
   if (eventBookings.length === 0) {
     doc.setTextColor(120, 120, 120);
@@ -349,19 +370,23 @@ export const generateVendorBlueprintPDF = async (
 
       doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
       doc.setFont('helvetica', 'bold');
-      doc.text(b.stallNumber, 18, y + 4.5);
+      doc.text(b.stallNumber, 16, y + 4.5);
 
       doc.setFont('helvetica', 'normal');
+      const zoneName = getBookingCategoryName(event, b);
+      const truncatedZone = zoneName.length > 20 ? zoneName.substring(0, 19) + '.' : zoneName;
+      doc.text(truncatedZone, 36, y + 4.5);
+
       const displayName = `${b.exhibitorName}${b.stallName ? ` (${b.stallName})` : ''}`;
-      const truncatedName = displayName.length > 38 ? displayName.substring(0, 36) + '..' : displayName;
-      doc.text(truncatedName, 45, y + 4.5);
+      const truncatedName = displayName.length > 32 ? displayName.substring(0, 30) + '..' : displayName;
+      doc.text(truncatedName, 78, y + 4.5);
 
       const catText = String(b.stallCategory || 'General');
-      doc.text(catText.length > 18 ? catText.substring(0, 17) + '.' : catText, 125, y + 4.5);
+      doc.text(catText.length > 18 ? catText.substring(0, 17) + '.' : catText, 138, y + 4.5);
 
       doc.setTextColor(180, 20, 20);
       doc.setFont('helvetica', 'bold');
-      doc.text('BOOKED', 170, y + 4.5);
+      doc.text('BOOKED', 174, y + 4.5);
 
       y += 6.5;
     });
@@ -412,20 +437,6 @@ export const generateVendorBlueprintPDF = async (
       console.warn('Could not embed floor plan image in Vendor PDF:', err);
     }
   }
-
-  // ── Footer ───────────────────────────────────────────────────────────────────
-  y += 4;
-  if (y > 275) { doc.addPage(); y = 15; }
-  doc.setDrawColor(245, 201, 168);
-  doc.line(14, y, 196, y);
-  y += 5;
-  doc.setTextColor(120, 110, 118);
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'italic');
-  doc.text(
-    `SliceEVENT  |  Vendor Stall Availability Report  |  Page ${doc.getNumberOfPages()}`,
-    14, y
-  );
 
   const filename = `${event.name.replace(/[^a-zA-Z0-9]/g, '_')}_Vendor_Blueprint.pdf`;
   doc.save(filename);
@@ -557,7 +568,55 @@ export const generateOwnerReportPDF = async (
     doc.text(card.val, x + 3.5, y + 12);
   });
 
-  y += 22;
+  y += 20;
+
+  // ── Per-Category Stall Breakdown ─────────────────────────────────────────────
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('STALL CATEGORY OCCUPANCY BREAKDOWN', 14, y);
+
+  y += 4;
+
+  // Category table header
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(14, y, 182, 7, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CATEGORY / ZONE', 18, y + 4.8);
+  doc.text('TOTAL STALLS', 95, y + 4.8);
+  doc.text('BOOKED', 130, y + 4.8);
+  doc.text('AVAILABLE', 162, y + 4.8);
+
+  y += 7;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+
+  stats.seriesStats.forEach((s, idx) => {
+    if (idx % 2 === 0) {
+      doc.setFillColor(255, 248, 240);
+      doc.rect(14, y, 182, 6.5, 'F');
+    }
+    doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(s.name, 18, y + 4.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(s.limit), 95, y + 4.5);
+
+    doc.setTextColor(s.booked > 0 ? 180 : 120, s.booked > 0 ? 20 : 120, s.booked > 0 ? 20 : 120);
+    doc.text(String(s.booked), 130, y + 4.5);
+
+    doc.setTextColor(s.available > 0 ? 22 : 180, s.available > 0 ? 101 : 20, s.available > 0 ? 52 : 20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(String(s.available), 162, y + 4.5);
+
+    y += 6.5;
+  });
+
+  y += 3;
 
   // Status breakdown row
   doc.setFontSize(8);
@@ -573,32 +632,33 @@ export const generateOwnerReportPDF = async (
 
   // Table Header
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text(`VENDOR FINANCIAL LEDGER (${eventBookings.length} BOOKINGS)`, 14, y);
 
   y += 4;
 
-  // Table Header Fill
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(14, y, 182, 8, 'F');
+  const drawOwnerTableHeader = () => {
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(14, y, 182, 7.5, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7.2);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Stall No', 16, y + 5);
+    doc.text('Zone / Category', 36, y + 5);
+    doc.text('Exhibitor / Stall Name', 74, y + 5);
+    doc.text('Mobile', 120, y + 5);
+    doc.text('Rent (Rs.)', 142, y + 5);
+    doc.text('Advance (Rs.)', 162, y + 5);
+    doc.text('Status', 182, y + 5);
+    y += 7.5;
+  };
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-
-  doc.text('Stall No', 16, y + 5.5);
-  doc.text('Exhibitor / Stall Name', 35, y + 5.5);
-  doc.text('Mobile', 95, y + 5.5);
-  doc.text('Rent (Rs.)', 125, y + 5.5);
-  doc.text('Advance (Rs.)', 148, y + 5.5);
-  doc.text('Status', 175, y + 5.5);
-
-  y += 8;
+  drawOwnerTableHeader();
 
   // Table Rows
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
+  doc.setFontSize(7);
 
   if (eventBookings.length === 0) {
     doc.setTextColor(120, 120, 120);
@@ -609,38 +669,33 @@ export const generateOwnerReportPDF = async (
       if (y > 270) {
         doc.addPage();
         y = 15;
-        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        doc.rect(14, y, 182, 8, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Stall No', 16, y + 5.5);
-        doc.text('Exhibitor / Stall Name', 35, y + 5.5);
-        doc.text('Mobile', 95, y + 5.5);
-        doc.text('Rent (Rs.)', 125, y + 5.5);
-        doc.text('Advance (Rs.)', 148, y + 5.5);
-        doc.text('Status', 175, y + 5.5);
-        y += 8;
+        drawOwnerTableHeader();
         doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
       }
 
       if (index % 2 === 0) {
         doc.setFillColor(255, 248, 240);
-        doc.rect(14, y, 182, 7, 'F');
+        doc.rect(14, y, 182, 6.5, 'F');
       }
 
       doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
       doc.setFont('helvetica', 'bold');
-      doc.text(b.stallNumber, 16, y + 5);
+      doc.text(b.stallNumber, 16, y + 4.5);
 
       doc.setFont('helvetica', 'normal');
-      const displayName = `${b.exhibitorName} (${b.stallName})`;
-      const truncatedName =
-        displayName.length > 32 ? displayName.substring(0, 30) + '..' : displayName;
-      doc.text(truncatedName, 35, y + 5);
+      const zoneName = getBookingCategoryName(event, b);
+      const truncatedZone = zoneName.length > 18 ? zoneName.substring(0, 17) + '.' : zoneName;
+      doc.text(truncatedZone, 36, y + 4.5);
 
-      doc.text(b.mobileNumber, 95, y + 5);
-      doc.text(b.stallRent.toLocaleString('en-IN'), 125, y + 5);
-      doc.text(b.stallAdvance.toLocaleString('en-IN'), 148, y + 5);
+      const displayName = `${b.exhibitorName}${b.stallName ? ` (${b.stallName})` : ''}`;
+      const truncatedName =
+        displayName.length > 26 ? displayName.substring(0, 24) + '..' : displayName;
+      doc.text(truncatedName, 74, y + 4.5);
+
+      doc.text(b.mobileNumber, 120, y + 4.5);
+      doc.text(b.stallRent.toLocaleString('en-IN'), 142, y + 4.5);
+      doc.text(b.stallAdvance.toLocaleString('en-IN'), 162, y + 4.5);
 
       if (b.calculatedStatus === 'Paid') {
         doc.setTextColor(16, 122, 70);
@@ -650,9 +705,9 @@ export const generateOwnerReportPDF = async (
         doc.setTextColor(180, 20, 20);
       }
       doc.setFont('helvetica', 'bold');
-      doc.text(b.calculatedStatus, 175, y + 5);
+      doc.text(b.calculatedStatus, 182, y + 4.5);
 
-      y += 7;
+      y += 6.5;
     });
   }
 
@@ -714,26 +769,6 @@ export const generateOwnerReportPDF = async (
       console.warn('Could not embed floor plan image in Owner PDF:', err);
     }
   }
-
-  // Footer divider line
-  y += 4;
-  if (y > 275) {
-    doc.addPage();
-    y = 15;
-  }
-
-  doc.setDrawColor(245, 201, 168);
-  doc.line(14, y, 196, y);
-
-  y += 5;
-  doc.setTextColor(120, 110, 118);
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'italic');
-  doc.text(
-    `SliceEVENT  |  Event Executive & Financial Report  |  Page ${doc.getNumberOfPages()}`,
-    14,
-    y
-  );
 
   // Save File
   const filename = `${event.name.replace(/[^a-zA-Z0-9]/g, '_')}_Owner_Executive_Report.pdf`;

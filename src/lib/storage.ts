@@ -149,6 +149,22 @@ export function getSupabaseClient(): SupabaseClient | null {
   return null;
 }
 
+// Helper to derive clean short stall number prefix from category name (e.g. "Food Zone" -> "FOOD", "Corner Stalls" -> "CS", "F Series" -> "F")
+export function getStallPrefix(name: string): string {
+  const clean = (name || '').trim();
+  if (!clean) return 'STALL';
+  if (/^F(\s|-|$)/i.test(clean)) return 'F';
+  if (/^S(\s|-|$)/i.test(clean)) return 'S';
+  const words = clean.split(/[\s-_]+/);
+  if (words.length > 1) {
+    const initials = words.map((w) => w[0]).join('').toUpperCase();
+    if (initials.length >= 2 && initials.length <= 4) return initials;
+  }
+  const firstWord = words[0];
+  if (firstWord.length <= 4) return firstWord.toUpperCase();
+  return firstWord.slice(0, 3).toUpperCase();
+}
+
 // Stats calculator for an event
 export function calculateEventDashboardStats(
   event: EventItem,
@@ -156,42 +172,43 @@ export function calculateEventDashboardStats(
 ) {
   const eventBookings = bookings.filter((b) => b.eventId === event.id);
 
-  const fBookings = eventBookings.filter((b) => b.series === 'F');
-  const sBookings = eventBookings.filter((b) => b.series === 'S');
+  const fBookings = eventBookings.filter(
+    (b) => b.series === 'F' || (b.stallNumber && b.stallNumber.toUpperCase().startsWith('F-'))
+  );
+  const sBookings = eventBookings.filter(
+    (b) => b.series === 'S' || (b.stallNumber && b.stallNumber.toUpperCase().startsWith('S-'))
+  );
   const fBooked = fBookings.length;
   const sBooked = sBookings.length;
 
-  // --- Dynamic series stats (new model) ---
+  // --- Dynamic series stats (supports custom categories + legacy F/S) ---
   const seriesStats: import('../types').SeriesStat[] = [];
 
-  if (event.stallSeriesConfigs && event.stallSeriesConfigs.length > 0) {
-    // Dynamic categories: count bookings where stallCategory matches the config name
-    event.stallSeriesConfigs.forEach((cfg) => {
-      const catBooked = eventBookings.filter(
-        (b) => b.stallCategory === cfg.name
-      ).length;
-      seriesStats.push({
-        name: cfg.name,
-        limit: cfg.limit,
-        booked: catBooked,
-        available: Math.max(0, cfg.limit - catBooked),
-      });
-    });
-  } else {
-    // Legacy F / S model
+  const categories =
+    event.stallSeriesConfigs && event.stallSeriesConfigs.length > 0
+      ? event.stallSeriesConfigs
+      : [
+          { id: 'F', name: 'F Series', limit: event.fSeriesLimit || 100 },
+          { id: 'S', name: 'S Series', limit: event.sSeriesLimit || 20 },
+        ];
+
+  categories.forEach((cfg) => {
+    const prefix = getStallPrefix(cfg.name);
+    const catBookings = eventBookings.filter(
+      (b) =>
+        b.series === cfg.id ||
+        b.series === cfg.name ||
+        b.stallCategory === cfg.name ||
+        (b.stallNumber && b.stallNumber.toUpperCase().startsWith(`${prefix}-`))
+    );
+    const catBooked = catBookings.length;
     seriesStats.push({
-      name: 'F Series',
-      limit: event.fSeriesLimit,
-      booked: fBooked,
-      available: Math.max(0, event.fSeriesLimit - fBooked),
+      name: cfg.name,
+      limit: cfg.limit,
+      booked: catBooked,
+      available: Math.max(0, cfg.limit - catBooked),
     });
-    seriesStats.push({
-      name: 'S Series',
-      limit: event.sSeriesLimit,
-      booked: sBooked,
-      available: Math.max(0, event.sSeriesLimit - sBooked),
-    });
-  }
+  });
 
   const totalStallsLimit = seriesStats.reduce((sum, s) => sum + s.limit, 0);
   const stallsBooked = eventBookings.length;
@@ -248,6 +265,7 @@ create table if not exists public.events (
   map_location text,
   f_series_limit integer default 100,
   s_series_limit integer default 20,
+  stall_series_configs jsonb default '[]'::jsonb,
   layout_image_url text,
   banner_image_url text,
   is_completed boolean default false,
@@ -259,7 +277,7 @@ create table if not exists public.events (
 create table if not exists public.stall_bookings (
   id text primary key,
   event_id text references public.events(id) on delete cascade,
-  series text check (series in ('F', 'S')),
+  series text,
   exhibitor_name text not null,
   stall_name text not null,
   mobile_number text not null,

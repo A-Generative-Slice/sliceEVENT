@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { EventItem, VendorBooking, StallSeries } from './types';
+import { EventItem, VendorBooking, StallSeries, StallSeriesConfig } from './types';
 import {
   getLocalEvents,
   saveLocalEvents,
@@ -25,12 +25,14 @@ export type ViewScreen =
   | 'event-details'
   | 'f-series'
   | 's-series'
+  | 'series-stalls'
   | 'support';
 
 export default function App() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [bookings, setBookings] = useState<VendorBooking[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [selectedSeriesConfig, setSelectedSeriesConfig] = useState<StallSeriesConfig | null>(null);
 
   const [currentScreen, setCurrentScreen] = useState<ViewScreen>('home');
   const [editingEventItem, setEditingEventItem] = useState<EventItem | null>(null);
@@ -104,6 +106,11 @@ export default function App() {
           mapLocation: r.map_location,
           fSeriesLimit: r.f_series_limit || 100,
           sSeriesLimit: r.s_series_limit || 20,
+          stallSeriesConfigs: r.stall_series_configs
+            ? typeof r.stall_series_configs === 'string'
+              ? JSON.parse(r.stall_series_configs)
+              : r.stall_series_configs
+            : undefined,
           layoutImageUrl: r.layout_image_url,
           bannerImageUrl: r.banner_image_url,
           isCompleted: Boolean(r.is_completed),
@@ -207,6 +214,7 @@ export default function App() {
           map_location: targetEvent.mapLocation,
           f_series_limit: targetEvent.fSeriesLimit,
           s_series_limit: targetEvent.sSeriesLimit,
+          stall_series_configs: targetEvent.stallSeriesConfigs || [],
           layout_image_url: targetEvent.layoutImageUrl,
           banner_image_url: targetEvent.bannerImageUrl,
           is_completed: targetEvent.isCompleted,
@@ -474,8 +482,26 @@ export default function App() {
           <EventDetailsView
             event={selectedEvent}
             bookings={bookings}
-            onOpenFSeries={() => setCurrentScreen('f-series')}
-            onOpenSSeries={() => setCurrentScreen('s-series')}
+            onOpenSeries={(cfg) => {
+              setSelectedSeriesConfig(cfg);
+              setCurrentScreen('series-stalls');
+            }}
+            onOpenFSeries={() => {
+              setSelectedSeriesConfig({
+                id: 'F',
+                name: 'F Series',
+                limit: selectedEvent.fSeriesLimit || 100,
+              });
+              setCurrentScreen('series-stalls');
+            }}
+            onOpenSSeries={() => {
+              setSelectedSeriesConfig({
+                id: 'S',
+                name: 'S Series',
+                limit: selectedEvent.sSeriesLimit || 20,
+              });
+              setCurrentScreen('series-stalls');
+            }}
             onEditEvent={() => {
               setEditingEventItem(selectedEvent);
               setCurrentScreen('create-event');
@@ -486,10 +512,25 @@ export default function App() {
           />
         )}
 
+        {currentScreen === 'series-stalls' && selectedEvent && selectedSeriesConfig && (
+          <SeriesStallsView
+            event={selectedEvent}
+            seriesConfig={selectedSeriesConfig}
+            bookings={bookings}
+            onSaveBooking={handleSaveBooking}
+            onDeleteBooking={handleDeleteBooking}
+            onBack={() => setCurrentScreen('event-details')}
+          />
+        )}
+
         {currentScreen === 'f-series' && selectedEvent && (
           <SeriesStallsView
             event={selectedEvent}
-            series="F"
+            seriesConfig={{
+              id: 'F',
+              name: 'F Series',
+              limit: selectedEvent.fSeriesLimit || 100,
+            }}
             bookings={bookings}
             onSaveBooking={handleSaveBooking}
             onDeleteBooking={handleDeleteBooking}
@@ -500,7 +541,11 @@ export default function App() {
         {currentScreen === 's-series' && selectedEvent && (
           <SeriesStallsView
             event={selectedEvent}
-            series="S"
+            seriesConfig={{
+              id: 'S',
+              name: 'S Series',
+              limit: selectedEvent.sSeriesLimit || 20,
+            }}
             bookings={bookings}
             onSaveBooking={handleSaveBooking}
             onDeleteBooking={handleDeleteBooking}

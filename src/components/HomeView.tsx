@@ -180,21 +180,34 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         </div>
                       </div>
 
-                      {/* Series summary pills */}
-                      <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-[#fff0e6]">
-                        <div className="bg-[#fff5ee] p-2.5 rounded-xl flex items-center justify-between">
-                          <span className="text-[#7c6354] font-semibold">F-Series:</span>
-                          <span className="font-extrabold text-[#C2500A]">
-                            {stats.fBooked} / {stats.fLimit}
-                          </span>
-                        </div>
-                        <div className="bg-[#fff5ee] p-2.5 rounded-xl flex items-center justify-between">
-                          <span className="text-[#7c6354] font-semibold">S-Series:</span>
-                          <span className="font-extrabold text-[#E8621A]">
-                            {stats.sBooked} / {stats.sLimit}
-                          </span>
-                        </div>
+                      {/* Dynamic Stall Series / Category pills */}
+                      <div
+                        className={`grid gap-2 text-xs pt-1 border-t border-[#fff0e6] ${
+                          stats.seriesStats.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+                        }`}
+                      >
+                        {stats.seriesStats.slice(0, 4).map((s, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-[#fff5ee] p-2.5 rounded-xl flex items-center justify-between"
+                          >
+                            <span
+                              className="text-[#7c6354] font-semibold truncate max-w-[100px]"
+                              title={s.name}
+                            >
+                              {s.name}:
+                            </span>
+                            <span className="font-extrabold text-[#C2500A]">
+                              {s.booked} / {s.limit}
+                            </span>
+                          </div>
+                        ))}
                       </div>
+                      {stats.seriesStats.length > 4 && (
+                        <div className="text-[10px] text-right text-[#7c6354] font-bold">
+                          +{stats.seriesStats.length - 4} more categories
+                        </div>
+                      )}
 
                       {/* Progress bar */}
                       <div className="space-y-1.5">

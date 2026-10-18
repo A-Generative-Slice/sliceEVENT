@@ -3,12 +3,13 @@ import {
   EventItem,
   VendorBooking,
   StallSeries,
+  StallSeriesConfig,
   PaymentMode,
   StallCategory,
   PaymentStatus,
   PaymentTransaction,
 } from '../types';
-import { calculatePaymentStatus, formatDatePretty } from '../lib/storage';
+import { calculatePaymentStatus, formatDatePretty, getStallPrefix } from '../lib/storage';
 import {
   ArrowLeft,
   Plus,
@@ -40,7 +41,8 @@ import {
 
 interface SeriesStallsViewProps {
   event: EventItem;
-  series: StallSeries; // 'F' or 'S'
+  seriesConfig?: StallSeriesConfig;
+  series?: StallSeries; // for backwards compatibility
   bookings: VendorBooking[];
   onSaveBooking: (bookingData: Omit<VendorBooking, 'id' | 'createdAt'>, existingId?: string) => void;
   onDeleteBooking: (bookingId: string) => void;
@@ -68,19 +70,31 @@ const PAYMENT_MODES: PaymentMode[] = [
 
 export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
   event,
+  seriesConfig,
   series,
   bookings,
   onSaveBooking,
   onDeleteBooking,
   onBack,
 }) => {
-  const isF = series === 'F';
-  const limit = isF ? event.fSeriesLimit : event.sSeriesLimit;
+  // Derive active series configuration
+  const config: StallSeriesConfig = seriesConfig || {
+    id: series || 'F',
+    name: series === 'S' ? 'S Series' : 'F Series',
+    limit: series === 'S' ? event.sSeriesLimit : event.fSeriesLimit,
+  };
 
-  // Filter bookings for this event and this specific series
-  const seriesBookings = bookings.filter(
-    (b) => b.eventId === event.id && b.series === series
-  );
+  const prefix = getStallPrefix(config.name);
+  const limit = config.limit;
+  const isF = prefix === 'F';
+
+  // Filter bookings for this event and this specific category/series
+  const seriesBookings = bookings.filter((b) => {
+    if (b.eventId !== event.id) return false;
+    if (b.series === config.id || b.series === config.name) return true;
+    if (b.stallNumber && b.stallNumber.toUpperCase().startsWith(`${prefix}-`)) return true;
+    return false;
+  });
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,8 +159,8 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
     setStallName(booking.stallName);
     setMobileNumber(booking.mobileNumber);
 
-    // Strip series prefix (e.g. "F-02" -> "02") for clean numeric edit input
-    const numPart = booking.stallNumber.replace(new RegExp(`^${series}-`, 'i'), '');
+    // Strip series prefix (e.g. "FOOD-02" -> "02") for clean numeric edit input
+    const numPart = booking.stallNumber.replace(new RegExp(`^${prefix}-`, 'i'), '');
     setStallNumber(numPart || booking.stallNumber);
 
     setBookingDate(booking.bookingDate);
@@ -225,13 +239,13 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
       return;
     }
 
-    // Format full stall number with series prefix (e.g. "F-02")
+    // Format full stall number with dynamic category prefix (e.g. "FOOD-02")
     let rawNum = stallNumber.trim();
     let formattedStallNum = rawNum;
-    if (!rawNum.toUpperCase().startsWith(`${series}-`)) {
+    if (!rawNum.toUpperCase().startsWith(`${prefix}-`)) {
       const numOnly = rawNum.replace(/\D/g, '');
       const padded = numOnly ? numOnly.padStart(2, '0') : rawNum;
-      formattedStallNum = `${series}-${padded}`;
+      formattedStallNum = `${prefix}-${padded}`;
     } else {
       formattedStallNum = rawNum.toUpperCase();
     }
@@ -252,7 +266,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
     onSaveBooking(
       {
         eventId: event.id,
-        series,
+        series: config.id,
         exhibitorName: exhibitorName.trim(),
         stallName: stallName.trim(),
         mobileNumber: mobileNumber.trim(),
@@ -314,12 +328,8 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
           </button>
           <div>
             <div className="flex items-center gap-1.5">
-              <span
-                className={`px-2.5 py-0.5 rounded-md text-[11px] font-extrabold text-white uppercase ${
-                  isF ? 'bg-[#a8400a]' : 'bg-[#E8621A]'
-                }`}
-              >
-                {series} SERIES
+              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold text-white uppercase bg-[#C2500A]">
+                {config.name} ({prefix})
               </span>
               <h1 className="text-base font-bold text-[#C2500A]">{event.name}</h1>
             </div>
@@ -331,9 +341,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
 
         <button
           onClick={openAddModal}
-          className={`p-2.5 rounded-xl text-white font-bold text-xs shadow-md active:scale-95 transition-all flex items-center gap-1 ${
-            isF ? 'bg-[#C2500A] hover:bg-[#a8400a]' : 'bg-[#E8621A] hover:bg-[#9a3d0a]'
-          }`}
+          className="p-2.5 rounded-xl text-white font-bold text-xs shadow-md active:scale-95 transition-all flex items-center gap-1 bg-[#C2500A] hover:bg-[#a8400a]"
         >
           <Plus className="w-4 h-4 stroke-[3]" /> Add Stall
         </button>
@@ -387,7 +395,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Search by exhibitor name, stall number (e.g. ${series}-01), stall name...`}
+            placeholder={`Search by exhibitor name, stall number (e.g. ${prefix}-01), stall name...`}
             className="w-full pl-10 pr-9 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-semibold text-[#1c1612] focus:outline-hidden focus:border-[#C2500A] shadow-2xs placeholder:text-[#a599a2]"
           />
           {searchQuery && (
@@ -427,8 +435,8 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
             <p className="font-bold text-sm text-[#C2500A]">No Vendor Bookings Found</p>
             <p className="text-xs">
               {searchQuery
-                ? `No booking matching exhibitor name or stall number "${searchQuery}" in ${series} Series.`
-                : `No stalls allocated in ${series} Series yet. Click "Add Stall" above.`}
+                ? `No booking matching exhibitor name or stall number "${searchQuery}" in ${config.name}.`
+                : `No stalls allocated in ${config.name} yet. Click "Add Stall" above.`}
             </p>
             {searchQuery ? (
               <button
@@ -837,10 +845,10 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
             <div className="p-4 bg-[#fffbf7] border-b border-[#ffe0cc] flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-base text-[#C2500A]">
-                  {editingBooking ? 'Edit Vendor Details' : `Add New ${series} Series Vendor`}
+                  {editingBooking ? 'Edit Vendor Details' : `Add New ${config.name} Vendor`}
                 </h3>
                 <p className="text-xs text-[#7c6354]">
-                  Stall allocation and rental payment details
+                  Stall allocation and rental payment details ({prefix} Series)
                 </p>
               </div>
               <button
@@ -892,7 +900,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                 />
               </div>
 
-              {/* 3. Mobile Number & Stall Number (Numeric-Only with {series}- Prefix) */}
+              {/* 3. Mobile Number & Stall Number (Numeric-Only with {prefix}- Prefix) */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="space-y-1">
                   <label className="font-bold uppercase tracking-wider text-[#C2500A]">
@@ -913,9 +921,9 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                   <label className="font-bold uppercase tracking-wider text-[#C2500A]">
                     Stall Number *
                   </label>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3 font-extrabold text-[#C2500A] text-xs">
-                      {series}-
+                  <div className="flex items-center rounded-xl border border-[#f5c9a8] bg-[#ffffff] overflow-hidden focus-within:border-[#C2500A]">
+                    <span className="px-2.5 py-2.5 font-extrabold text-[#C2500A] text-xs bg-[#fff5ee] border-r border-[#f5c9a8] shrink-0 select-none">
+                      {prefix}-
                     </span>
                     <input
                       type="text"
@@ -923,7 +931,7 @@ export const SeriesStallsView: React.FC<SeriesStallsViewProps> = ({
                       onChange={(e) => setStallNumber(e.target.value.replace(/\D/g, ''))}
                       placeholder="01"
                       required
-                      className="w-full pl-8 pr-3 py-2.5 bg-[#ffffff] border border-[#f5c9a8] rounded-xl text-xs font-black text-[#C2500A] focus:outline-hidden focus:border-[#C2500A]"
+                      className="w-full px-2.5 py-2.5 bg-transparent text-xs font-black text-[#C2500A] focus:outline-hidden"
                     />
                   </div>
                 </div>
